@@ -44,7 +44,6 @@ const Cards = () => {
     const cases = [22334,10425, 12322, 125]
     const classes = useStyles();
     return (
-        <h1>Hello</h1>
         <Grid container>
             <Grid item xs={12} md={3}>
                 <CardContent>
