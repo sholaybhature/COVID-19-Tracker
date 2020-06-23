@@ -38,54 +38,62 @@ const useStyles = makeStyles((theme) => ({
     Deceased:{
         color:'#6C757D',
     },
+
 }));
 
-const Cards = () => {
+const Cards = ({data:{ confirmed, recovered, deceased, active, tested }}) => {
+    
     const cases = [22334,10425, 12322, 125]
     const classes = useStyles();
+    if(!confirmed) {
+        return 'Loading...'
+    }
+
     return (
-        <Grid container>
-            <Grid item xs={12} md={3}>
+        <div className={styles.container}>
+        <Grid container spacing={3} justify="center">
+            <Grid item xs={6} md={3}>
                 <CardContent>
-                    <Typography className={classes.Confirmed} gutterBottom>
+                    <Typography className={cx(styles.font,classes.Confirmed)} gutterBottom>
                         Confirmed
                         </Typography>
-                    <Typography variant="h5">
-                        <CountUp start={0} end={cases[0]} duration={2} seperator="," />
+                    <Typography variant="h5" className={CountUp}>
+                        <CountUp className={cx(styles.font,styles.CountUp)} start={0} end={confirmed} duration={2} seperator="," />
                     </Typography>
                 </CardContent>
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={6} md={3}>
                 <CardContent>
-                    <Typography className={classes.Active} gutterBottom>
+                    <Typography className={cx(styles.font,classes.Active)} gutterBottom>
                         Active
                         </Typography>
                     <Typography variant="h5">
-                        <CountUp start={0} end={cases[1]} duration={2} seperator="," />
+                        <CountUp className={cx(styles.font,styles.CountUp)} start={0} end={active} duration={2} seperator="," />
                     </Typography>
                 </CardContent>
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={6} md={3}>
                 <CardContent>
-                    <Typography className={classes.Recovered} gutterBottom>
+                    <Typography className={cx(styles.font,classes.Recovered)} gutterBottom>
                         Recovered
                         </Typography>
                     <Typography variant="h5">
-                        <CountUp start={0} end={cases[2]} duration={2} seperator="," />
+                        <CountUp className={cx(styles.font,styles.CountUp)} start={0} end={recovered} duration={2} seperator="," />
                     </Typography>
                 </CardContent>
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={6} md={3}>
                 <CardContent>
-                    <Typography className={classes.Deceased} gutterBottom>
+                    <Typography className={cx(styles.font,classes.Deceased)} gutterBottom>
                         Deceased
                         </Typography>
                     <Typography variant="h5">
-                        <CountUp start={0} end={cases[3]} duration={2} seperator="," />
+                        <CountUp className={cx(styles.font,styles.CountUp)} start={0} end={deceased} duration={2} seperator="," />
                     </Typography>
                 </CardContent>
             </Grid>
         </Grid>
+        </div>
     )
 }
 

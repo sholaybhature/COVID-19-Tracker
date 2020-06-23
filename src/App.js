@@ -1,18 +1,28 @@
-import React,{Component} from 'react';
+import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {Cards, SearchBar, HeadBar} from './Components';
-
+import { Cards, SearchBar, HeadBar } from './Components';
+import { fetchData } from './api';
 
 class App extends Component {
+  
+  state = {
+    data: {},
+    location: '',
+  }
 
+  async componentDidMount() {
+    const fetchedData = await fetchData();
+    this.setState({ data: fetchedData })
+  }
 
   render() {
+    const {data} = this.state;
     return (
       <div>
         <HeadBar></HeadBar>
         <SearchBar></SearchBar>
-        <Cards></Cards>
+        <Cards data={data}></Cards>
       </div>
     )
   }

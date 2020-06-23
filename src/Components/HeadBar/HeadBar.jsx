@@ -30,6 +30,11 @@ const useStyles = makeStyles((theme) => ({
     },
     menuButton: {
         marginRight: theme.spacing(2),
+        marginLeft: theme.spacing(2),
+        [theme.breakpoints.down('md')]: {
+            marginRight: theme.spacing(1),
+        marginLeft: theme.spacing(1),
+        },
     },
     title: {
         flexGrow: 1,
@@ -43,39 +48,53 @@ const useStyles = makeStyles((theme) => ({
     },
 
     drawer: {
-        
-        width:240,
+        width: '25%',
         flexShrink: 0,
-      },
-      drawerPaper: {
-        width:240,
+    },
+    drawerPaper: {
+        width: '16%',
+        [theme.breakpoints.down('md')]: {
+            width: '12%',
+        },
         background: '#1E1E30',
-      },
-      drawerHeader: {
+    },
+    drawerHeader: {
         display: 'flex',
         alignItems: 'center',
         padding: theme.spacing(0, 1),
         // necessary for content to be below app bar
         ...theme.mixins.toolbar,
         justifyContent: 'flex-end',
-      },
-      
-      icon: {
-        color: '#f2f2f2',
-      },
+    },
 
-      dividerColor: {
+    icon: {
+        color: '#f2f2f2',
+        paddingBottom: 20,
+        paddingRight: 10,
+        
+        
+    },
+    icon_list: {
+        color: '#f2f2f2',
+        marginRight: theme.spacing(3),
+        marginLeft: theme.spacing(2),
+        [theme.breakpoints.down('md')]: {
+        paddingLeft: '15%',
+        },
+    },
+
+    dividerColor: {
         backgroundColor: 'white',
-      },
-    
-      
+    },
+
+
 }));
 
 const Head = () => {
     const [open, setOpen] = React.useState(false);
 
-    const icons =[faHome,faDatabase,faGithub];
-    
+    const icons = [faHome, faDatabase, faGithub];
+
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -87,24 +106,20 @@ const Head = () => {
     const classes = useStyles();
 
     return (
-        <div className={classes.root}>
-            <AppBar className={classes.root} position="static">
-                <Toolbar>
-                    <IconButton
-                        edge="start"
-                        className={cx(styles.menuButton, classes.menuButton)}
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography className={classes.title} variant="h6" noWrap>
-                    C<FontAwesomeIcon className={styles.faVirus} icon={faVirus} />VID-19<FontAwesomeIcon className={styles.faPumpSoap} icon={faPumpSoap} />
-              </Typography>
-                </Toolbar>
-            </AppBar>
+        <div>
+
+            <IconButton
+                edge="start"
+                className={cx(styles.menuButton, classes.menuButton)}
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+            >
+                <MenuIcon />
+            </IconButton>
+
             <Drawer
+
                 className={classes.drawer}
                 variant="persistent"
                 anchor="left"
@@ -114,15 +129,16 @@ const Head = () => {
                 }}
             >
                 <div className={classes.drawerHeader}>
-                    <IconButton onClick={handleDrawerClose}>
-                        <MenuIcon className={classes.icon} />
+                    <IconButton  onClick={handleDrawerClose}>
+                        <MenuIcon className={cx(classes.icon,styles.icon)} />
                     </IconButton>
                 </div>
-                <Divider classes={{root: classes.dividerColor}}/>
+
+                <Divider classes={{ root: classes.dividerColor }} />
                 <List>
                     {['Home', 'Data', 'Contact'].map((text, index) => (
                         <ListItem button key={text}>
-                            <ListItemIcon className={cx(classes.icon,styles.ListItemIcon)}>{<FontAwesomeIcon icon={icons[index]} />}</ListItemIcon>
+                            <ListItemIcon className={cx(classes.icon_list, styles.ListItemIcon)}>{<FontAwesomeIcon icon={icons[index]} />}</ListItemIcon>
                             <ListItemText disableTypography primary={<Typography type="body2" style={{ color: '#f2f2f2' }}>{text}</Typography>} />
                         </ListItem>
                     ))}

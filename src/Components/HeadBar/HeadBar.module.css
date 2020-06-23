@@ -3,18 +3,12 @@
 }
 
 .ListItemIcon {
-    transform: scale(1.5);
-    margin-left: 15px;
+    transform: scale(1.25);
+    margin-left: 5px !important;
     padding: 10px;
 }
 
-.faVirus {
-    transform: scale(0.75);
 
-}
-
-.faPumpSoap {
-    transform: scaleX(-1) rotate(5deg) scale(1.15) translateY(-2px);
-    margin-left: 3px;
-
+.icon{
+    transform: rotate(90deg);
 }
