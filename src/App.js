@@ -11,8 +11,8 @@ class App extends Component {
     return (
       <div>
         <HeadBar></HeadBar>
-        <Cards></Cards>
         <SearchBar></SearchBar>
+        <Cards></Cards>
       </div>
     )
   }

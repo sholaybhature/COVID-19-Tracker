@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@200&display=swap');
+
+.Container {
+   margin-top: 5%;
+}
+
+.showCurrentTime {
+    font-family: 'Heebo', sans-serif !important;
+}
