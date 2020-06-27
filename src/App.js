@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Cards, SearchBar, HeadBar } from './Components';
-import { fetchData } from './api';
+import { Cards, SearchBar, HeadBar, Chart } from './Components';
+import { fetchData, fetchDailyData } from './api';
+
 
 class App extends Component {
   
@@ -23,6 +24,9 @@ class App extends Component {
         <HeadBar></HeadBar>
         <SearchBar></SearchBar>
         <Cards data={data}></Cards>
+        <Chart></Chart>
+
+        
       </div>
     )
   }
