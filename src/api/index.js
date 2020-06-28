@@ -22,7 +22,7 @@ export async function fetchData() {
 
 export async function fetchDailyData() {
     const dates = getDates();
-    const timeStamp = getTimeStamp();
+    const timestamp = getTimeStamp();
     try {
         let response = await fetch(url_timeseries);
         let data = await response.json()
@@ -35,7 +35,7 @@ export async function fetchDailyData() {
             confirmed.push(data.DL[dates[i]].total.confirmed);
             deceased.push(data.DL[dates[i]].total.deceased);
             recovered.push(data.DL[dates[i]].total.recovered);
-            date.push(timeStamp[i]);
+            date.push(timestamp[i]);
             }
         }
         fillZero(deceased);
@@ -50,13 +50,14 @@ export async function fetchDailyData() {
 // To get the dates and fetch data from API
 const getDates = () => {
     let now = new Date();
-    var daysOfYear = [];
+    let daysOfYear = [];
+    let datestring;
     for (let d = new Date(2020, 2, 1); d <= now; d.setDate(d.getDate() + 1)) {
         if (d.getDate() < 10) {
-            var datestring = d.getFullYear()+ "-" + "0" + (d.getMonth()+1)  + "-" + "0"+d.getDate();
+            datestring = d.getFullYear()+ "-" + "0" + (d.getMonth()+1)  + "-" + "0"+d.getDate();
         }
         else{
-            var datestring = d.getFullYear()+ "-" + "0" + (d.getMonth()+1)  + "-" + d.getDate();
+             datestring = d.getFullYear()+ "-" + "0" + (d.getMonth()+1)  + "-" + d.getDate();
         }
         daysOfYear.push(datestring);
     }
@@ -65,12 +66,15 @@ const getDates = () => {
 
 const getTimeStamp = () => {
     let now = new Date();
-    var daysOfYear = [];
-    for (let d = new Date(2020, 2, 1); d <= now; d.setDate(d.getDate() + 1)) {
-        daysOfYear.push(d);
+    let start = new Date(2020,2,1)
+    let daysOfYear = [];
+    for (let d = start; d <= now; d.setDate(d.getDate() + 1)) {
+        var loopDay = new Date(d)
+        daysOfYear.push(loopDay);
     }
     return daysOfYear
 }
+
 
 const fillZero = (arr) => {
     for(let key in arr) {
