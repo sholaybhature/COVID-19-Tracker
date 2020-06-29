@@ -11,6 +11,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
+import { listState } from '../CountryPicker/CountryPicker'
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -40,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-
     },
     inputRoot: {
     },
@@ -88,8 +89,9 @@ const Search = () => {
             <Container fixed className={styles.Container}>
                 <div className={classes.search}>
                     <form className={classes.root} noValidate autoComplete="off">
-                    <TextField id="standard-basic" label="Search for a state"  variant="outlined"/>
+                        <TextField id="standard-basic" label="Search for a state" variant="outlined" />
                     </form>
+                    
                     {/* <InputBase
                             placeholder="Search…"
                             className={styles.InputBase}

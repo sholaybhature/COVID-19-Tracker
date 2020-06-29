@@ -3,22 +3,23 @@ import axios from 'axios';
 const url = 'https://api.covid19india.org/v3/data.json';
 const url_timeseries = 'https://api.covid19india.org/v3/timeseries.json';
 
-export async function fetchData() {
+export async function fetchData(country) {
+    //console.log(typeof country)
     try {
         let response = await fetch(url);
-        let data = await response.json()
-        let confirmed = data.DL.total.confirmed;
-        let deceased = data.DL.total.deceased;
-        let recovered = data.DL.total.recovered;
-        let tested = data.DL.total.tested;
+        let data = await response.json();
+        let confirmed = data.AP.total.confirmed;
+        let deceased = data.AP.total.deceased;
+        let recovered = data.AP.total.recovered;
+        let tested = data.AP.total.tested;
         let active = confirmed - recovered + deceased
         return { confirmed, deceased, recovered, tested, active };
     } catch (error) {
         console.log("Couldn't fetch")
     }
-
-
 }
+
+fetchData("AP")
 
 export async function fetchDailyData() {
     const dates = getDates();
@@ -32,11 +33,11 @@ export async function fetchDailyData() {
         let date = [];
         let active = [];
         for(let i =0; i<dates.length-1; i++){
-            if (data.DL[dates[i]]){
-            confirmed.push(data.DL[dates[i]].total.confirmed);
-            deceased.push(data.DL[dates[i]].total.deceased);
-            recovered.push(data.DL[dates[i]].total.recovered);
-            active.push(data.DL[dates[i]].total.confirmed - data.DL[dates[i]].total.recovered + data.DL[dates[i]].total.deceased)
+            if (data.AP[dates[i]]){
+            confirmed.push(data.AP[dates[i]].total.confirmed);
+            deceased.push(data.AP[dates[i]].total.deceased);
+            recovered.push(data.AP[dates[i]].total.recovered);
+            active.push(data.AP[dates[i]].total.confirmed - data.AP[dates[i]].total.recovered + data.AP[dates[i]].total.deceased)
             date.push(timestamp[i]);
             }
         }
