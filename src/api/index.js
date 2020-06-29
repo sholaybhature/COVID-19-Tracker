@@ -29,18 +29,22 @@ export async function fetchDailyData() {
         let confirmed = [];
         let deceased = [];
         let recovered = [];
-        let date = []
+        let date = [];
+        let active = [];
         for(let i =0; i<dates.length-1; i++){
             if (data.DL[dates[i]]){
             confirmed.push(data.DL[dates[i]].total.confirmed);
             deceased.push(data.DL[dates[i]].total.deceased);
             recovered.push(data.DL[dates[i]].total.recovered);
+            active.push(data.DL[dates[i]].total.confirmed - data.DL[dates[i]].total.recovered + data.DL[dates[i]].total.deceased)
             date.push(timestamp[i]);
             }
         }
         fillZero(deceased);
-        fillZero(recovered)
-        return {confirmed,deceased,recovered,date};
+        fillZero(recovered);
+        fillZero(active);
+        fillZero(confirmed);
+        return {confirmed,deceased,recovered,date,active};
     } catch (error) {
         console.log("Couldn't fetch")
     }
@@ -78,7 +82,7 @@ const getTimeStamp = () => {
 
 const fillZero = (arr) => {
     for(let key in arr) {
-        if(arr[key] === undefined || arr[key] === null)
+        if(arr[key] === undefined || arr[key] === null || isNaN(arr[key]))
             arr[key] = 0;
      }
 }

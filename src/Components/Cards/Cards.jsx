@@ -50,7 +50,7 @@ const Cards = ({ data: { confirmed, recovered, deceased, active, tested } }) => 
     return (
         <div className={styles.container}>
             <Grid container spacing={3} justify="center">
-                <Grid item xs={6} md={3}>
+                <Grid item xs={6} md={3} id="confirmed">
                     <CardContent>
                         <Typography className={cx(styles.font, classes.Confirmed)} gutterBottom>
                             Confirmed
@@ -59,9 +59,8 @@ const Cards = ({ data: { confirmed, recovered, deceased, active, tested } }) => 
                             <CountUp className={cx(styles.font, styles.CountUp)} start={0} end={confirmed} duration={2} seperator="," />
                         </Typography>
                     </CardContent>
-                    <div id="my_dataviz"></div>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid item xs={6} md={3} id="active">
                     <CardContent>
                         <Typography className={cx(styles.font, classes.Active)} gutterBottom>
                             Active
@@ -71,7 +70,7 @@ const Cards = ({ data: { confirmed, recovered, deceased, active, tested } }) => 
                         </Typography>
                     </CardContent>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid item xs={6} md={3} id="recovered">
                     <CardContent>
                         <Typography className={cx(styles.font, classes.Recovered)} gutterBottom>
                             Recovered
@@ -81,7 +80,7 @@ const Cards = ({ data: { confirmed, recovered, deceased, active, tested } }) => 
                         </Typography>
                     </CardContent>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid item xs={6} md={3} id="deceased">
                     <CardContent>
                         <Typography className={cx(styles.font, classes.Deceased)} gutterBottom>
                             Deceased
