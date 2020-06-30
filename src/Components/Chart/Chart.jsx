@@ -10,7 +10,7 @@ function GetData() {
 
     useEffect(() => {
         const fetchAPI = async () => {
-            setDailyData(await fetchDailyData());
+            setDailyData(await fetchDailyData('MH'));
         }
         fetchAPI();
     }, []);
