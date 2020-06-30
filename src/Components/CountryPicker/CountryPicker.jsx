@@ -5,10 +5,7 @@ export const listState = {
     "AR":"Arunachal Pradesh",
     "AS":"Assam",
     "BR":"Bihar",
-    "CG":"Chandigarh",
-    "CH":"Chhattisgarh",
-    "DN":"Dadra and Nagar Haveli",
-    "DD":"Daman and Diu",
+    "CT":"Chhattisgarh",
     "DL":"Delhi",
     "GA":"Goa",
     "GJ":"Gujarat",
@@ -19,7 +16,6 @@ export const listState = {
     "KA":"Karnataka",
     "KL":"Kerala",
     "LA":"Ladakh",
-    "LD":"Lakshadweep",
     "MP":"Madhya Pradesh",
     "MH":"Maharashtra",
     "MN":"Manipur",
@@ -32,10 +28,10 @@ export const listState = {
     "RJ":"Rajasthan",
     "SK":"Sikkim",
     "TN":"Tamil Nadu",
-    "TS":"Telangana",
+    "TG":"Telangana",
     "TR":"Tripura",
     "UP":"Uttar Pradesh",
-    "UK":"Uttarakhand",
+    "UT":"Uttarakhand",
     "WB":"West Bengal"
 }
 
