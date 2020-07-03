@@ -1,6 +1,6 @@
 import react,{Component} from "react";
 export const listState = {
-    "AN":"Andaman and Nicobar Islands",
+    "AN":"Andaman & Nicobar",
     "AP":"Andhra Pradesh",
     "AR":"Arunachal Pradesh",
     "AS":"Assam",

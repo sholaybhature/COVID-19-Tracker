@@ -68,6 +68,39 @@ export async function fetchDailyData(state) {
 }
 
 
+export async function fetchDataAll(listState) {
+    try {
+        const suffix = '.total';
+        var keys = Object.keys(listState);
+        let obj = []
+        for (var i = 0; i < 33; i++) {
+            let total = 0;
+            let accessObj = keys[i] + suffix
+            let response = await fetch(url);
+            let data = await response.json();
+            let accessData = accessObj.split('.').reduce(function (o, key) {
+                return o[key];
+            }, data);
+            let confirmed =accessData.confirmed;
+            let deceased =accessData.deceased;
+            if (deceased=== undefined){
+                deceased=0;
+            }
+            let recovered = accessData.recovered;
+            let tested = accessData.tested;
+            total = confirmed + deceased + recovered
+            obj.push({
+                state:listState[keys[i]],confirmed: confirmed, deceased: deceased, recovered: recovered, total: total, tested: tested
+            });
+        }
+        //checkNullorZero(obj)
+        console.log(obj)
+        return obj
+    } catch (error) {
+        console.log("Couldn't fetch")
+    }
+}
+fetchDataAll(listState)
 export async function fetchDailyDataAll(listState) {
     const dates = getDates();
     const timestamp = getTimeStamp();
@@ -84,12 +117,7 @@ export async function fetchDailyDataAll(listState) {
                 return o[key];
             }, data);
             //console.log(accessData)
-            let confirmed = [];
-            let deceased = [];
-            let recovered = [];
-            let date = [];
-            let active = [];
-            let stateName = []
+
             for (let i = 0; i < dates.length - 1; i++) {
                 if (accessData[dates[i]]) {
                     obj.push({
@@ -160,10 +188,10 @@ const fillZero = (arr) => {
 
 const checkNullorZero = (obj) => {
     const output = Object.keys(obj).map(col => {
-        if (obj[col].deceased === "" || obj[col].deceased === 0 || obj[col].deceased === undefined || obj[col].deceased === null || isNaN(obj[col].deceased)){
+        if (obj[col].deceased === "" || obj[col].deceased === 0 || obj[col].deceased === undefined || obj[col].deceased === null || isNaN(obj[col].deceased)) {
             obj[col].deceased = 0
         }
-        if (obj[col].recovered === "" || obj[col].recovered === 0 || obj[col].recovered === undefined || obj[col].recovered === null || isNaN(obj[col].recovered)){
+        if (obj[col].recovered === "" || obj[col].recovered === 0 || obj[col].recovered === undefined || obj[col].recovered === null || isNaN(obj[col].recovered)) {
             obj[col].recovered = 0
         }
 
