@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Cards, SearchBar, HeadBar, Chart } from './Components';
-import { fetchData, fetchDailyData,fetchDailyDataAll } from './api';
-import {listState} from './Components/CountryPicker/CountryPicker'
-console.log(fetchDailyDataAll(listState))
+import { Cards, SearchBar, HeadBar, Chart, Chart2} from './Components';
+import { fetchData} from './api';
+//console.log(fetchDailyDataAll(listState))
 //37 size
 class App extends Component {
   
@@ -26,7 +25,7 @@ class App extends Component {
         <SearchBar></SearchBar>
         <Cards data={data}></Cards>
         <Chart></Chart>
-
+        <Chart2></Chart2>
         
       </div>
     )

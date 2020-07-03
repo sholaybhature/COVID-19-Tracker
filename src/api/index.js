@@ -67,6 +67,61 @@ export async function fetchDailyData(state) {
 
 }
 
+
+export async function fetchDailyDataAll(listState) {
+    const dates = getDates();
+    const timestamp = getTimeStamp();
+    let obj = []
+    var keys = Object.keys(listState);
+
+    try {
+        for (var i = 0; i < 33; i++) {
+            let accessObj = keys[i]
+            //console.log(accessObj)
+            let response = await fetch(url_timeseries);
+            let data = await response.json()
+            let accessData = accessObj.split('.').reduce(function (o, key) {
+                return o[key];
+            }, data);
+            //console.log(accessData)
+            let confirmed = [];
+            let deceased = [];
+            let recovered = [];
+            let date = [];
+            let active = [];
+            let stateName = []
+            for (let i = 0; i < dates.length - 1; i++) {
+                if (accessData[dates[i]]) {
+                    obj.push({
+                        state: accessObj, date: timestamp[i], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                        recovered: accessData[dates[i]].total.recovered
+                    });
+                    // confirmed.push(accessData[dates[i]].total.confirmed);
+                    // deceased.push(accessData[dates[i]].total.deceased);
+                    // recovered.push(accessData[dates[i]].total.recovered);
+                    // active.push(accessData[dates[i]].total.confirmed - accessData[dates[i]].total.recovered + accessData[dates[i]].total.deceased)
+                    // date.push(timestamp[i]);
+                    // stateName.push(accessObj)
+                }
+            }
+            // fillZero(deceased);
+            // fillZero(recovered);
+            // fillZero(active);
+            // fillZero(confirmed);
+
+            //obj.listState[keys[i]] = {state: stateName}
+            //obj.push({ state: stateName, date: date, confirmed: confirmed, deceased: deceased, recovered: recovered, active: active })
+
+        }
+        checkNullorZero(obj)
+        return obj
+
+    } catch (error) {
+        console.log("Couldn't fetch")
+    }
+
+}
+
 // To get the dates and fetch data from API
 const getDates = () => {
     let now = new Date();
@@ -103,53 +158,14 @@ const fillZero = (arr) => {
     }
 }
 
-export async function fetchDailyDataAll(listState) {
-    const dates = getDates();
-    const timestamp = getTimeStamp();
-    let obj = []
-    var keys = Object.keys(listState);
-    // for (var i =0;i<5;i++){
-    //     console.log(listState[keys[i]])
-    // }
-    try {
-        for (var i = 0; i < 33; i++) {
-            let accessObj = keys[i]
-            //console.log(accessObj)
-            let response = await fetch(url_timeseries);
-            let data = await response.json()
-            let accessData = accessObj.split('.').reduce(function (o, key) {
-                return o[key];
-            }, data);
-            //console.log(accessData)
-            let confirmed = [];
-            let deceased = [];
-            let recovered = [];
-            let date = [];
-            let active = [];
-            let stateName = []
-            for (let i = 0; i < dates.length - 1; i++) {
-                if (accessData[dates[i]]) {
-
-                    confirmed.push(accessData[dates[i]].total.confirmed);
-                    deceased.push(accessData[dates[i]].total.deceased);
-                    recovered.push(accessData[dates[i]].total.recovered);
-                    active.push(accessData[dates[i]].total.confirmed - accessData[dates[i]].total.recovered + accessData[dates[i]].total.deceased)
-                    date.push(timestamp[i]);
-                    stateName.push(accessObj)
-                }
-            }
-            fillZero(deceased);
-            fillZero(recovered);
-            fillZero(active);
-            fillZero(confirmed);
-
-            //obj.listState[keys[i]] = {state: stateName}
-            obj.push({ state: stateName, date: date, confirmed: confirmed, deceased: deceased, recovered: recovered, active: active })
-            //return { confirmed, deceased, recovered, date, active };
+const checkNullorZero = (obj) => {
+    const output = Object.keys(obj).map(col => {
+        if (obj[col].deceased === "" || obj[col].deceased === 0 || obj[col].deceased === undefined || obj[col].deceased === null || isNaN(obj[col].deceased)){
+            obj[col].deceased = 0
         }
-        console.log(obj)
-    } catch (error) {
-        console.log("Couldn't fetch")
-    }
+        if (obj[col].recovered === "" || obj[col].recovered === 0 || obj[col].recovered === undefined || obj[col].recovered === null || isNaN(obj[col].recovered)){
+            obj[col].recovered = 0
+        }
 
+    })
 }

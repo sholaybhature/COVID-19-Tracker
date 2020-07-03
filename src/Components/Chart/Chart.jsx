@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { fetchData, fetchDailyData } from '../../api';
+import { fetchData, fetchDailyData,fetchDailyDataAll } from '../../api';
 import * as d3 from "d3";
 import styles from './Chart.module.css';
+import {listState} from '../CountryPicker/CountryPicker';
 
 //confirmed,deceased,recovered
 function GetData() {
 
     const [dailyData, setDailyData] = useState([]);
+    const [dailyDataAll, setDailyDataAll] = useState([]);
 
     useEffect(() => {
+        
         const fetchAPI = async () => {
             setDailyData(await fetchDailyData('MH'));
+            //setDailyDataAll(await fetchDailyDataAll(listState));
         }
         fetchAPI();
     }, []);
+
 
     return (
         <div>
@@ -79,7 +84,6 @@ function LineChart(props) {
             .attr("fill", "none")
             .attr("stroke", props.color)
             .attr("stroke-width", 4.5)
-
             .attr("d", d3.line()
             .curve(d3.curveBasis)
                 .x(function (d) { return x(d.date) })
