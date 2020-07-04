@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Cards, SearchBar, HeadBar, Chart, Chart2} from './Components';
-import { fetchData} from './api';
-//console.log(fetchDailyDataAll(listState))
-//37 size
+import { Cards, SearchBar, HeadBar, Chart, Chart2 } from './Components';
+import { fetchData } from './api';
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 class App extends Component {
-  
+
   state = {
     data: {},
     location: '',
@@ -14,11 +15,14 @@ class App extends Component {
 
   async componentDidMount() {
     const fetchedData = await fetchData('MH');
+    AOS.init({
+      duration : 2000
+    })
     this.setState({ data: fetchedData })
   }
 
   render() {
-    const {data} = this.state;
+    const { data } = this.state;
     return (
       <div>
         <HeadBar></HeadBar>

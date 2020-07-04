@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { fetchDataAll } from '../../api';
 import * as d3 from "d3";
-import styles from './Chart.module.css';
+import d3Tip from "d3-tip";
+import './Chart2.css';
 import { listState } from '../CountryPicker/CountryPicker';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+
+
 
 function GetDataAll() {
 
     const [DataAll, setDataAll] = useState([]);
 
     useEffect(() => {
-
         const fetchAPIAll = async () => {
             setDataAll(await fetchDataAll(listState));
         }
@@ -37,13 +41,14 @@ function MultiLineChart(props) {
             outerRadius = Math.min(width, height) / 2.5;
         var svg = d3.select(".MultiLineChart")
             .append("svg")
+            .classed('my-svg',true)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .call(responsivefy)
             // .attr("viewBox", "0 0 " + width + " " + height )
             // .attr("preserveAspectRatio", "xMidYMid meet")
             .append("g")
-            .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+            .attr("transform", "translate(" + width / 4 + "," + (height / 2) + ")");
         // var dataGroup = d3.nest()
         //     .key(function (d) {
         //         return d.state;
@@ -63,6 +68,14 @@ function MultiLineChart(props) {
             .domain(['active', 'recovered', 'deceased'])
             .range(["#E05759", "#76B7B2", "#616161"])
 
+        var tip = d3Tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function (d) {
+                return "Active: <span style='color:#E05759'>" + d.data.active + "</span> <br>Recovered: <span style='color:#76B7B2'>" + d.data.recovered + "</span> <br>Deceased: <span style='color:#616161'>" + d.data.deceased + "</span> ";
+            })
+
+
         svg.append("g")
             .attr("text-anchor", "middle")
             .call(g => g.selectAll("g")
@@ -79,6 +92,7 @@ function MultiLineChart(props) {
                     .text(d => d.tpr)
                     .style("font-size", "8px")
                     .style('opacity', 0.5)))
+
         // var yAxis = g => g
         //     .attr("text-anchor", "middle")
         //     .call(g => g.append("text")
@@ -92,7 +106,7 @@ function MultiLineChart(props) {
             .append('circle')
             .attr('cx', 0)
             .attr('cy', 0)
-            .attr('r', 210)
+            .attr('r', 200)
             .attr('fill', 'none')
             .attr('stroke', 'black')
             .attr('stroke-opacity', 0.05)
@@ -119,7 +133,7 @@ function MultiLineChart(props) {
         var stacked = d3.stack().keys(['active', 'recovered', 'deceased'])
 
         var dataStack = stacked(props.DataAll)
-
+        console.log(dataStack)
         svg.append("g")
             .selectAll("g")
             .data(props.DataAll)
@@ -133,13 +147,6 @@ function MultiLineChart(props) {
             .style("font-size", "11px")
             .attr("alignment-baseline", "middle")
 
-        var tooltip = d3.select("body")
-            .append("div")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .text("a simple tooltip");
-
 
         svg.append("g")
             .selectAll('g')
@@ -150,31 +157,24 @@ function MultiLineChart(props) {
             .data(d => d)
             .join('path')
             .attr('d', arc)
-            .on('mouseover', function (d, i) {
-                d3.select(this).transition()
-                    .duration('50')
-                    .attr('opacity', '.85');
-                    
-            })
-            .on('mouseout', function (d, i) {
-                d3.select(this).transition()
-                    .duration('50')
-                    .attr('opacity', '1');
-            })
+            //.on('mouseover', function(d){console.log(d.data)})
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide)
 
         svg.append('g')
             .append('text')
             .classed('case-count', true)
-            .attr("y", d => -220)
+            .attr("y", d => -215)
             .attr("dx", "-0.85em")
             .style("font-size", "8px")
             .style("font-weight", 600)
             .style('opacity', 0.5)
             .text("100k")
+
         svg.append('g')
             .append('text')
-            .classed('case-count', true)
-            .attr("y", d => -212)
+            .classed('cases', true)
+            .attr("y", d => -207)
             .attr("dx", "-0.95em")
             .style("font-size", "8px")
             .style("font-weight", 600)
@@ -191,6 +191,27 @@ function MultiLineChart(props) {
             .style('opacity', 0.5)
             .text("Test Positive Ratio")
 
+        svg.append('g')
+            .append('text')
+            
+            .classed('heading', true)
+            .attr("y", d => -75)
+            .attr("x", d => 300)
+            .style("font-size", "30px")
+            .text("Infection and Fatality Rates Vary By State")
+            .on('mouseover', function(d){d3.select(this).attr("y", -80).style("fill", "#E05759");})
+            .on('mouseout', function(d){d3.select(this).attr("y", -75).style("fill", "black");})
+            
+
+
+        svg.append('g')
+            .append('text')
+            .classed('heading', true)
+            .attr("y", d => -50)
+            .attr("x", d => 300)
+            .style("font-size", "20px")
+            .style('opacity',0.8)
+            .text("Quality of healthcare, average age, testing - many factors")
 
         svg.append('g')
             .selectAll('g')
@@ -213,6 +234,8 @@ function MultiLineChart(props) {
 
         // svg.append("g")
         //     .call(yAxis);
+
+        svg.call(tip);
 
         window.addEventListener('resize', resize);
         d3.select(window).on("resize", resize);
