@@ -87,14 +87,16 @@ export async function fetchDataAll(listState) {
                 deceased=0;
             }
             let recovered = accessData.recovered;
-            let tested = accessData.tested;
+            //let tested = accessData.tested;
+            let active = confirmed - recovered +  deceased
             total = confirmed + deceased + recovered
+            let tpr = (confirmed/accessData.tested)*100 
             obj.push({
-                state:listState[keys[i]],confirmed: confirmed, deceased: deceased, recovered: recovered, total: total, tested: tested
+                state:listState[keys[i]],confirmed: confirmed, deceased: deceased, recovered: recovered, total: total, tpr:tpr.toFixed(1)+'%', active:active
             });
         }
         //checkNullorZero(obj)
-        console.log(obj)
+        //console.log(obj)
         return obj
     } catch (error) {
         console.log("Couldn't fetch")
