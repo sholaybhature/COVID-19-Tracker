@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchDataAll } from '../../api';
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
-import './Chart2.css';
+import './RadialChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
@@ -28,11 +28,9 @@ function GetDataAll() {
 }
 
 
-
 function MultiLineChart(props) {
     //console.log(props.DataAll)
     if (props.DataAll[0]) {
-        console.log(props.DataAll)
         var keys = ['Active', 'Recovered', 'Deceased']
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
             width = 1200 - margin.left - margin.right,
@@ -133,7 +131,6 @@ function MultiLineChart(props) {
         var stacked = d3.stack().keys(['active', 'recovered', 'deceased'])
 
         var dataStack = stacked(props.DataAll)
-        console.log(dataStack)
         svg.append("g")
             .selectAll("g")
             .data(props.DataAll)
@@ -199,8 +196,9 @@ function MultiLineChart(props) {
             .attr("x", d => 300)
             .style("font-size", "30px")
             .text("Infection and Fatality Rates Vary By State")
-            .on('mouseover', function(d){d3.select(this).attr("y", -80).style("fill", "#E05759");})
-            .on('mouseout', function(d){d3.select(this).attr("y", -75).style("fill", "black");})
+            .style('fill','#E05759')
+            .on('mouseover', function(d){d3.select(this).attr("y", -80);})
+            .on('mouseout', function(d){d3.select(this).attr("y", -75);})
             
 
 

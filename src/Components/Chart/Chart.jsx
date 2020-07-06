@@ -18,7 +18,7 @@ function GetData() {
         }
         fetchAPI();
     }, []);
-
+    
 
     return (
         <div>

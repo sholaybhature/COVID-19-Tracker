@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Cards, SearchBar, HeadBar, Chart, Chart2 } from './Components';
+import { Cards, SearchBar, HeadBar, Chart, RadialChart, LineChart } from './Components';
 import { fetchData } from './api';
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -29,7 +29,8 @@ class App extends Component {
         <SearchBar></SearchBar>
         <Cards data={data}></Cards>
         <Chart></Chart>
-        <Chart2></Chart2>
+        <RadialChart></RadialChart>
+        <LineChart></LineChart>
         
       </div>
     )
