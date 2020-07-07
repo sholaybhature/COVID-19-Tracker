@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+
+.tick{
+    font-family: 'Nanum Gothic', sans-serif !important;
+ 
+}
+.y-axis{
+    font-size: 0.75rem;
+    
+}
+
+.grid .tick{
+    opacity: 0.10;
+    stroke-dasharray: 5,5;
+}
+
+.grid .domain{
+    stroke: none;
+    stroke-opacity: 0;
+    display: none;
+}
+
+.y-axis .domain{
+    stroke: white;
+    stroke-opacity: 0;
+    display: none;
+}
+
+.x-axis .domain {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+    stroke-width: 1.5px;
+  }
+
+.label{
+    font-weight: 400;
+    font-family: 'Nanum Gothic', sans-serif !important;
+   
+}

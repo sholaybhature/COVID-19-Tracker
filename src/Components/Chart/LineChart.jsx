@@ -11,7 +11,7 @@ function GetDataAll() {
 
     useEffect(() => {
         const fetchAPIAll = async () => {
-            setDataAll(await fetchDailyData_Chart('TN'));
+            setDataAll(await fetchDailyData_Chart('MH'));
         }
         fetchAPIAll();
     }, []);
@@ -40,8 +40,9 @@ function LineChart(props) {
             .entries(props.DataAll)
 
         var svg = d3.select(".LineChart")
+            .attr('id', 'LineChart')
             .append("svg")
-            .classed('my-svg', true)
+            .classed('my-svg-chart', true)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .call(responsivefy)
@@ -56,19 +57,30 @@ function LineChart(props) {
             })
             .entries(props.DataAll)
 
+        function make_y_gridline() {
+            return d3.axisLeft(y).ticks(3)
+        }
+
         var x = d3.scaleTime()
             .domain(d3.extent(props.DataAll, function (d) { return d.date }))
             .range([0, width - width / 6 - width / 4]);
-        svg.append('g')
-            .attr('transform', 'translate(0,' + height + ')')
-            .call(d3.axisBottom(x).ticks(4));
+
 
         var y = d3.scaleLinear()
             .domain(d3.extent(props.DataAll, function (d) { return d.confirmed }))
             .range([height, 100])
         svg.append('g')
-            .call(d3.axisLeft(y));
-            
+            .classed('y-axis', true)
+            .call(d3.axisLeft(y).ticks(4).tickSize(0).tickPadding(5).tickFormat(function (d) {
+                if ((d / 1000) >= 0.5) {
+                    d = d / 1000 + "k";
+                }
+                return d;
+            }));
+
+        svg.append('g')
+            .attr('class', 'grid')
+            .call(make_y_gridline().tickSize(-width + width / 6 + width / 4).tickSizeOuter(0).tickFormat(""))
 
         var lineGenConfirmed = d3.line()
             .curve(d3.curveBasis)
@@ -84,8 +96,9 @@ function LineChart(props) {
                 .attr('id', 'line')
                 .attr('d', lineGenConfirmed(d.values))
                 .attr('stroke', '#007BFF')
-                .attr('stroke-width', 4.5)
+                .attr('stroke-width', 2.5)
                 .attr('fill', 'none')
+                .on('mouseover', console.log(1))
 
         });
         var lineGenDeceased = d3.line()
@@ -102,7 +115,7 @@ function LineChart(props) {
                 .attr('id', 'line')
                 .attr('d', lineGenDeceased(d.values))
                 .attr('stroke', '#6C757D')
-                .attr('stroke-width', 4.5)
+                .attr('stroke-width', 2.5)
                 .attr('fill', 'none')
 
         });
@@ -120,10 +133,63 @@ function LineChart(props) {
                 .attr('id', 'line')
                 .attr('d', lineGenRecovered(d.values))
                 .attr('stroke', '#28A745')
-                .attr('stroke-width', 4.5)
+                .attr('stroke-width', 2.5)
                 .attr('fill', 'none')
 
         });
+
+        svg.append("text")
+            .classed('label', true)
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - 6 * margin.left)
+            .attr("x", 0 - (height / 2)-40)
+            .attr("dy", "1em")
+            .style('font-size', '0.75rem')
+            .style("text-anchor", "middle")
+            .text("Daily new Cases");
+
+        var len = props.DataAll.length - 1
+        var date = props.DataAll[len].date
+        var cirlce_y = [props.DataAll[len].confirmed, props.DataAll[len].recovered, props.DataAll[len].deceased]
+        var color = ["#007BFF", "#28A745", "#6C757D"]
+        var keys_legend = ["Confirmed", "Recovered", "Deceased"]
+
+        svg.selectAll("mydots")
+            .data(keys_legend)
+            .enter()
+            .append("circle")
+            .attr("cx", function (d, i) { return 40 + i * 100 })
+            .attr("cy", 80) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("r", 3)
+            .style("fill", function (d, i) { return color[i] })
+
+        // Add one dot in the legend for each name.
+        svg.selectAll("mylabels")
+            .data(keys_legend)
+            .enter()
+            .append("text")
+            .attr("x", function (d, i) { return 50 + i * 100 })
+            .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
+            .style("fill", function (d, i) { return color[i] })
+            .text(function (d) { return d })
+            .style('font-size', '0.75rem')
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+
+        svg.selectAll('circle-chart')
+            .data(cirlce_y)
+            .enter().append("circle")
+            .attr('id', 'circle')
+            .attr('r', 3.5)
+            .attr('cx', x(date))
+            .attr('cy', function (d, i) { return y(cirlce_y[i]) })
+            .style('fill', function (d, i) { return color[i] })
+
+        svg.append('g')
+            .classed('x-axis', true)
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(d3.axisBottom(x).ticks(4));
+
 
     }
     return null;

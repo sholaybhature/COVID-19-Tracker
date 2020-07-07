@@ -21,14 +21,14 @@ function GetDataAll() {
     }, []);
     return (
         <div>
-            <div className="MultiLineChart">
-                <MultiLineChart DataAll={DataAll} />
+            <div className="RadialChart">
+                <RadialChart DataAll={DataAll} />
             </div>
         </div>)
 }
 
 
-function MultiLineChart(props) {
+function RadialChart(props) {
     //console.log(props.DataAll)
     if (props.DataAll[0]) {
         var keys = ['Active', 'Recovered', 'Deceased']
@@ -37,8 +37,9 @@ function MultiLineChart(props) {
             height = 600 - margin.top - margin.bottom,
             innerRadius = 160,
             outerRadius = Math.min(width, height) / 2.5;
-        var svg = d3.select(".MultiLineChart")
+        var svg = d3.select(".RadialChart")
             .append("svg")
+            .attr('id','RadialChart')
             .classed('my-svg',true)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -235,13 +236,7 @@ function MultiLineChart(props) {
 
         svg.call(tip);
 
-        window.addEventListener('resize', resize);
-        d3.select(window).on("resize", resize);
-        function resize() {
-            var width = window.innerWidth, height = window.innerHeight;
-            svg.attr("width", width).attr("height", height);
-        }
-
+        
     }
     return null;
 }
