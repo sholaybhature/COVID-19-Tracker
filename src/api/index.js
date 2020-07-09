@@ -108,10 +108,14 @@ export async function fetchDailyData_Chart(listState) {
 const replace = (object) => {
     var newObj = []
     for (let i = 1; i < object.length; i++) {
+        if(object[i].state === object[i-1].state){
         newObj.push({
             state: object[i].state, date: object[i].date, confirmed: object[i].confirmed - object[i - 1].confirmed, deceased: object[i].deceased - object[i - 1].deceased,
             recovered: object[i].recovered - object[i - 1].recovered
-        })
+        })}
+        else{
+            i = i +1;
+        }
     }
     return newObj
 
@@ -196,7 +200,8 @@ export async function fetchDailyDataAll(listState) {
 
         }
         checkNullorZero(obj)
-        return obj
+        var newObj = replace(obj)
+        return newObj
 
     } catch (error) {
         console.log("Couldn't fetch")

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchDailyData_Chart, } from '../../api';
+import { fetchDailyData_Chart, fetchDailyDataAll } from '../../api';
 import * as d3 from "d3";
 import './LineChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
@@ -11,7 +11,7 @@ function GetDataAll() {
 
     useEffect(() => {
         const fetchAPIAll = async () => {
-            setDataAll(await fetchDailyData_Chart('MH'));
+            setDataAll(await fetchDailyDataAll(listState));
         }
         fetchAPIAll();
     }, []);
@@ -19,6 +19,7 @@ function GetDataAll() {
     return (
         <div>
             <div className="LineChart">
+                <div id="fruitDropdown"></div>
                 <LineChart DataAll={DataAll} />
             </div>
         </div>)
@@ -28,7 +29,6 @@ function GetDataAll() {
 function LineChart(props) {
     //console.log(props.DataAll)
     if (props.DataAll[0]) {
-        //console.log(props.DataAll)
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
             width = 1200 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
@@ -38,6 +38,8 @@ function LineChart(props) {
                 return d.state;
             })
             .entries(props.DataAll)
+
+        //console.log(dataGroup)
 
         var svg = d3.select(".LineChart")
             .attr('id', 'LineChart')
@@ -51,36 +53,62 @@ function LineChart(props) {
             .append("g")
             .attr("transform", "translate(" + width / 8 + "," + -10 + ")");
 
-        var dataGroup = d3.nest()
-            .key(function (d) {
-                return d.state;
+        var fruitMenu = d3.select("#fruitDropdown")
+
+        fruitMenu
+            .append("select")
+            .selectAll("option")
+            .data(dataGroup)
+            .enter()
+            .append("option")
+            .attr("value", function (d) {
+                return d.key;
             })
-            .entries(props.DataAll)
-
+            .text(function (d) {
+                return d.key;
+            })
         function make_y_gridline() {
-            return d3.axisLeft(y).ticks(3)
+            return d3.axisLeft(y).ticks(4)
         }
-
+        var check = dataGroup.filter(function (d) {
+            return d.key == "MH"
+        })
+        //console.log(check)
         var x = d3.scaleTime()
-            .domain(d3.extent(props.DataAll, function (d) { return d.date }))
+            .domain(d3.extent(check[0].values, function (d) { return d.date }))
             .range([0, width - width / 6 - width / 4]);
 
-
         var y = d3.scaleLinear()
-            .domain(d3.extent(props.DataAll, function (d) { return d.confirmed }))
+            .domain(d3.extent(check[0].values, function (d) { return d.confirmed }))
             .range([height, 100])
-        svg.append('g')
-            .classed('y-axis', true)
-            .call(d3.axisLeft(y).ticks(4).tickSize(0).tickPadding(5).tickFormat(function (d) {
-                if ((d / 1000) >= 0.5) {
-                    d = d / 1000 + "k";
-                }
-                return d;
-            }));
+
+
+        var yAxis =
+            svg.append('g')
+                .classed('y-axis', true)
+                .call(y.axis = d3.axisLeft(y)
+                    .ticks(4)
+                    .tickSize(0)
+                    .tickPadding(5)
+                    .tickFormat(function (d) {
+                        if ((d / 1000) >= 1) {
+                            d = d / 1000 + "k";
+                        }
+
+                        return d;
+                    }));
+
 
         svg.append('g')
             .attr('class', 'grid')
             .call(make_y_gridline().tickSize(-width + width / 6 + width / 4).tickSizeOuter(0).tickFormat(""))
+
+        var xAxis =
+            svg.append('g')
+                .classed('x-axis', true)
+                .attr('transform', 'translate(0,' + height + ')')
+                .call(d3.axisBottom(x).ticks(4));
+
 
         var lineGenConfirmed = d3.line()
             .curve(d3.curveBasis)
@@ -91,104 +119,174 @@ function LineChart(props) {
                 return y(d.confirmed);
             });
 
-        dataGroup.forEach(function (d, i) {
-            svg.append('path')
-                .attr('id', 'line')
-                .attr('d', lineGenConfirmed(d.values))
-                .attr('stroke', '#007BFF')
-                .attr('stroke-width', 2.5)
-                .attr('fill', 'none')
-                .on('mouseover', console.log(1))
+        //     check.forEach(function (d, i) {
+        //     svg.append('path')
+        //         .attr('id', 'line')
+        //         .attr('d', lineGenConfirmed(d.values))
+        //         .attr('stroke', '#007BFF')
+        //         .attr('stroke-width', 2.5)
+        //         .attr('fill', 'none')
+        // });
 
-        });
-        var lineGenDeceased = d3.line()
-            .curve(d3.curveBasis)
-            .x(function (d) {
-                return x(d.date);
+        var line = svg
+            .append('g')
+            .append("path")
+            .datum(check[0].values)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(function (d) {
+                    return x(d.date);
+                })
+                .y(function (d) {
+                    return y(d.confirmed);
+                }))
+            .attr('stroke', '#007BFF')
+            .attr('stroke-width', 2.5)
+            .attr('fill', 'none')
+
+
+
+
+
+        function update(selectedGroup) {
+            var dataFilter = dataGroup.filter(function (d) {
+                return d.key == selectedGroup
             })
-            .y(function (d) {
-                return y(d.deceased);
-            });
+            
+            line
+                .datum(dataFilter[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x(d.date);
+                    })
+                    .y(function (d) {
+                        console.log(d.confirmed)
+                        //return y(d.confirmed);
+                    }))
 
-        dataGroup.forEach(function (d, i) {
-            svg.append('path')
-                .attr('id', 'line')
-                .attr('d', lineGenDeceased(d.values))
-                .attr('stroke', '#6C757D')
-                .attr('stroke-width', 2.5)
-                .attr('fill', 'none')
+            x.domain(d3.extent(dataFilter[0].values, function (d) { return d.date }))
+                .range([0, width - width / 6 - width / 4]);
+            y.domain(d3.extent(dataFilter[0].values, function (d) { return d.confirmed }))
+            xAxis.attr("transform", "translate(0," + y(0) + ")")
+                .call(d3.axisBottom(x).ticks(4));
+            yAxis.call(y.axis = d3.axisLeft(y)
+                .ticks(4)
+                .tickSize(0)
+                .tickPadding(5)
+                .tickFormat(function (d) {
+                    if ((d / 1000) >= 1) {
+                        d = d / 1000 + "k";
+                    }
+
+                    return d;
+                }));
+            // updateDomains(dataFilter)
+            // updateAxes()
+        }
+
+
+        fruitMenu.on('change', function () {
+
+            // Find which fruit was selected from the dropdown
+            var selectedFruit = d3.select(this)
+                .select("select")
+                .property("value")
+
+            // Run update function with the selected fruit
+            update(selectedFruit)
+
 
         });
-        var lineGenRecovered = d3.line()
-            .curve(d3.curveBasis)
-            .x(function (d) {
-                return x(d.date);
-            })
-            .y(function (d) {
-                return y(d.recovered);
-            });
 
-        dataGroup.forEach(function (d, i) {
-            svg.append('path')
-                .attr('id', 'line')
-                .attr('d', lineGenRecovered(d.values))
-                .attr('stroke', '#28A745')
-                .attr('stroke-width', 2.5)
-                .attr('fill', 'none')
 
-        });
+        // var lineGenDeceased = d3.line()
+        //     .curve(d3.curveBasis)
+        //     .x(function (d) {
+        //         return x(d.date);
+        //     })
+        //     .y(function (d) {
+        //         return y(d.deceased);
+        //     });
 
-        svg.append("text")
-            .classed('label', true)
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - 6 * margin.left)
-            .attr("x", 0 - (height / 2)-40)
-            .attr("dy", "1em")
-            .style('font-size', '0.75rem')
-            .style("text-anchor", "middle")
-            .text("Daily new Cases");
+        // dataGroup.forEach(function (d, i) {
+        //     svg.append('path')
+        //         .attr('id', 'line')
+        //         .attr('d', lineGenDeceased(d.values))
+        //         .attr('stroke', '#6C757D')
+        //         .attr('stroke-width', 2.5)
+        //         .attr('fill', 'none')
 
-        var len = props.DataAll.length - 1
-        var date = props.DataAll[len].date
-        var cirlce_y = [props.DataAll[len].confirmed, props.DataAll[len].recovered, props.DataAll[len].deceased]
-        var color = ["#007BFF", "#28A745", "#6C757D"]
-        var keys_legend = ["Confirmed", "Recovered", "Deceased"]
+        // });
+        // var lineGenRecovered = d3.line()
+        //     .curve(d3.curveBasis)
+        //     .x(function (d) {
+        //         return x(d.date);
+        //     })
+        //     .y(function (d) {
+        //         return y(d.recovered);
+        //     });
 
-        svg.selectAll("mydots")
-            .data(keys_legend)
-            .enter()
-            .append("circle")
-            .attr("cx", function (d, i) { return 40 + i * 100 })
-            .attr("cy", 80) // 100 is where the first dot appears. 25 is the distance between dots
-            .attr("r", 3)
-            .style("fill", function (d, i) { return color[i] })
+        // dataGroup.forEach(function (d, i) {
+        //     svg.append('path')
+        //         .attr('id', 'line')
+        //         .attr('d', lineGenRecovered(d.values))
+        //         .attr('stroke', '#28A745')
+        //         .attr('stroke-width', 2.5)
+        //         .attr('fill', 'none')
 
-        // Add one dot in the legend for each name.
-        svg.selectAll("mylabels")
-            .data(keys_legend)
-            .enter()
-            .append("text")
-            .attr("x", function (d, i) { return 50 + i * 100 })
-            .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
-            .style("fill", function (d, i) { return color[i] })
-            .text(function (d) { return d })
-            .style('font-size', '0.75rem')
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle")
+        // });
 
-        svg.selectAll('circle-chart')
-            .data(cirlce_y)
-            .enter().append("circle")
-            .attr('id', 'circle')
-            .attr('r', 3.5)
-            .attr('cx', x(date))
-            .attr('cy', function (d, i) { return y(cirlce_y[i]) })
-            .style('fill', function (d, i) { return color[i] })
+        // svg.append("text")
+        //     .classed('label', true)
+        //     .attr("transform", "rotate(-90)")
+        //     .attr("y", 0 - 6 * margin.left)
+        //     .attr("x", 0 - (height / 2)-40)
+        //     .attr("dy", "1em")
+        //     .style('font-size', '0.75rem')
+        //     .style("text-anchor", "middle")
+        //     .text("Daily new Cases");
 
-        svg.append('g')
-            .classed('x-axis', true)
-            .attr('transform', 'translate(0,' + height + ')')
-            .call(d3.axisBottom(x).ticks(4));
+        // var len = props.DataAll.length - 1
+        // var date = props.DataAll[len].date
+        // var cirlce_y = [props.DataAll[len].confirmed, props.DataAll[len].recovered, props.DataAll[len].deceased]
+        // var color = ["#007BFF", "#28A745", "#6C757D"]
+        // var keys_legend = ["Confirmed", "Recovered", "Deceased"]
+
+        // svg.selectAll("mydots")
+        //     .data(keys_legend)
+        //     .enter()
+        //     .append("circle")
+        //     .attr("cx", function (d, i) { return 40 + i * 100 })
+        //     .attr("cy", 80) // 100 is where the first dot appears. 25 is the distance between dots
+        //     .attr("r", 3)
+        //     .style("fill", function (d, i) { return color[i] })
+
+        // // Add one dot in the legend for each name.
+        // svg.selectAll("mylabels")
+        //     .data(keys_legend)
+        //     .enter()
+        //     .append("text")
+        //     .attr("x", function (d, i) { return 50 + i * 100 })
+        //     .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
+        //     .style("fill", function (d, i) { return color[i] })
+        //     .text(function (d) { return d })
+        //     .style('font-size', '0.75rem')
+        //     .attr("text-anchor", "left")
+        //     .style("alignment-baseline", "middle")
+
+        // svg.selectAll('circle-chart')
+        //     .data(cirlce_y)
+        //     .enter().append("circle")
+        //     .attr('id', 'circle')
+        //     .attr('r', 3.5)
+        //     .attr('cx', x(date))
+        //     .attr('cy', function (d, i) { return y(cirlce_y[i]) })
+        //     .style('fill', function (d, i) { return color[i] })
+
+
 
 
     }
