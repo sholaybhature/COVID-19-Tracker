@@ -21,7 +21,7 @@ function GetDataAll() {
         <div>
             <div className="LineChart">
                 <div id="fruitDropdown">
-                <text id ="selectStateText"> Select State</text>
+                    
                 </div>
                 <LineChart DataAll={DataAll} />
             </div>
@@ -57,9 +57,10 @@ function LineChart(props) {
             .attr("transform", "translate(" + width / 8 + "," + -10 + ")");
 
         var fruitMenu = d3.select("#fruitDropdown")
-
+        //console.log(dataGroup)
         fruitMenu
             .append("select")
+            .classed('select-box', true)
             .selectAll("option")
             .data(dataGroup)
             .enter()
@@ -70,12 +71,18 @@ function LineChart(props) {
             .text(function (d) {
                 return d.key;
             })
+            .property("selected", function (d, i) { return i == 17; })
+
         function make_y_gridline() {
             return d3.axisLeft(y).ticks(4)
         }
         var check = dataGroup.filter(function (d) {
-            return d.key == "DL"
+            return d.key == "Maharashtra"
         })
+
+        var len = check[0].values.length - 1
+        var valuesCases = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
+
         //console.log(check)
         var x = d3.scaleTime()
             .domain(d3.extent(check[0].values, function (d) { return d.date }))
@@ -112,24 +119,44 @@ function LineChart(props) {
                 .attr('transform', 'translate(0,' + height + ')')
                 .call(d3.axisBottom(x).ticks(4));
 
+        var text = svg.append('g')
+            .append('text')
+            .classed('heading', true)
+            .attr("y", d => 200)
+            .attr("x", d => 725)
+            .style("font-size", "30px")
+            .text("Maharashtra")
+            .style('fill', '#E05759')
 
-        var lineGenConfirmed = d3.line()
-            .curve(d3.curveBasis)
-            .x(function (d) {
-                return x(d.date);
-            })
-            .y(function (d) {
-                return y(d.confirmed);
-            });
+        var textCaseConfirmed =
+            svg.append('text')
+                .attr("y", d => 225)
+                .attr("x", d => 725)
+                .style("font-size", "12.5px")
+                .style('font-weight', 600)
+                .text("+" + valuesCases[0])
+                .style('fill', '#007BFF')
 
-        //     check.forEach(function (d, i) {
-        //     svg.append('path')
-        //         .attr('id', 'line')
-        //         .attr('d', lineGenConfirmed(d.values))
-        //         .attr('stroke', '#007BFF')
-        //         .attr('stroke-width', 2.5)
-        //         .attr('fill', 'none')
-        // });
+        var textCaseRecovered =
+            svg.append('text')
+                .attr("y", d => 225)
+                .attr("x", d => 775)
+                .style("font-size", "12.5px")
+                .style('font-weight', 600)
+                .text("+" + valuesCases[1])
+                .style('fill', '#28A745')
+
+        var textCaseDeceased =
+            svg.append('text')
+                .attr("y", d => 225)
+                .attr("x", d => 825)
+                .style("font-size", "12.5px")
+                .style('font-weight', 600)
+                .text("+" + valuesCases[2])
+                .style('fill', '#6C757D')
+
+
+
 
         var line_confirmed = svg
             .append('g')
@@ -193,6 +220,12 @@ function LineChart(props) {
                 .range([0, width - width / 6 - width / 4]);
             y.domain(d3.extent(dataFilter[0].values, function (d) { return d.confirmed }))
             //console.log(d3.extent(dataFilter[0].values,function(d){return d.confirmed}))
+
+            text.text(selectedGroup)
+            textCaseConfirmed.text("+" + circle_y[0])
+            textCaseRecovered.text("+" + circle_y[1])
+            textCaseDeceased.text("+" + circle_y[2])
+
             xAxis.attr("transform", "translate(0," + y(0) + ")")
                 .call(d3.axisBottom(x).ticks(4));
             yAxis.call(y.axis = d3.axisLeft(y)

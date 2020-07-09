@@ -175,6 +175,7 @@ export async function fetchDailyDataAll(listState) {
     const timestamp = getTimeStamp();
     let obj = []
     var keys = Object.keys(listState);
+    //console.log(listState[keys[1]])
 
     try {
         for (var i = 0; i < 33; i++) {
@@ -190,7 +191,7 @@ export async function fetchDailyDataAll(listState) {
             for (let i = 0; i < dates.length - 1; i++) {
                 if (accessData[dates[i]]) {
                     obj.push({
-                        state: accessObj, date: timestamp[i], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                        state: listState[accessObj], date: timestamp[i], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
                         recovered: accessData[dates[i]].total.recovered
                     });
 

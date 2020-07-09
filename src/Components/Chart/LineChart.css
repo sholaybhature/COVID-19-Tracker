@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500&display=swap');
 
 .tick{
-    font-family: 'Nanum Gothic', sans-serif !important;
+    font-family: 'Gothic A1', sans-serif;
  
 }
 .y-axis{
@@ -35,7 +36,7 @@
 
 .label{
     font-weight: 400;
-    font-family: 'Nanum Gothic', sans-serif !important;
+    font-family: 'Gothic A1', sans-serif;
    
 }
 
@@ -44,12 +45,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
 
-#selectStateText{
-    padding-right: 1%;
+
+.select-box{
+    border-radius:3px;
+    border:1px black;
+    font-family: 'Gothic A1', sans-serif;
     font-weight: 600;
-    font-family: 'Nanum Gothic', sans-serif !important;
-    font-size: 0.75em;
-    outline: thin black;
+    font-size: 1.5vw;
+    outline: none;
 }
+
