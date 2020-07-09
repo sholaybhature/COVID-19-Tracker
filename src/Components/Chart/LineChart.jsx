@@ -3,6 +3,7 @@ import { fetchDailyData_Chart, fetchDailyDataAll } from '../../api';
 import * as d3 from "d3";
 import './LineChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
+import Typography from '@material-ui/core/Typography';
 
 //confirmed,deceased,recovered
 function GetDataAll() {
@@ -19,7 +20,9 @@ function GetDataAll() {
     return (
         <div>
             <div className="LineChart">
-                <div id="fruitDropdown"></div>
+                <div id="fruitDropdown">
+                <text id ="selectStateText"> Select State</text>
+                </div>
                 <LineChart DataAll={DataAll} />
             </div>
         </div>)
@@ -30,8 +33,8 @@ function LineChart(props) {
     //console.log(props.DataAll)
     if (props.DataAll[0]) {
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
-            width = 1200 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
+            width = 1150 - margin.left - margin.right,
+            height = 550 - margin.top - margin.bottom;
 
         var dataGroup = d3.nest()
             .key(function (d) {
@@ -71,7 +74,7 @@ function LineChart(props) {
             return d3.axisLeft(y).ticks(4)
         }
         var check = dataGroup.filter(function (d) {
-            return d.key == "MH"
+            return d.key == "DL"
         })
         //console.log(check)
         var x = d3.scaleTime()
@@ -99,7 +102,7 @@ function LineChart(props) {
                     }));
 
 
-        svg.append('g')
+        var grid = svg.append('g')
             .attr('class', 'grid')
             .call(make_y_gridline().tickSize(-width + width / 6 + width / 4).tickSizeOuter(0).tickFormat(""))
 
@@ -128,7 +131,7 @@ function LineChart(props) {
         //         .attr('fill', 'none')
         // });
 
-        var line = svg
+        var line_confirmed = svg
             .append('g')
             .append("path")
             .datum(check[0].values)
@@ -144,32 +147,52 @@ function LineChart(props) {
             .attr('stroke-width', 2.5)
             .attr('fill', 'none')
 
+        var line_recovered = svg
+            .append('g')
+            .append("path")
+            .datum(check[0].values)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(function (d) {
+                    return x(d.date);
+                })
+                .y(function (d) {
+                    return y(d.recovered);
+                }))
+            .attr('stroke', '#28A745')
+            .attr('stroke-width', 2.5)
+            .attr('fill', 'none')
 
-
+        var line_deceased = svg
+            .append('g')
+            .append("path")
+            .datum(check[0].values)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(function (d) {
+                    return x(d.date);
+                })
+                .y(function (d) {
+                    return y(d.deceased);
+                }))
+            .attr('stroke', '#6C757D')
+            .attr('stroke-width', 2.5)
+            .attr('fill', 'none')
 
 
         function update(selectedGroup) {
             var dataFilter = dataGroup.filter(function (d) {
                 return d.key == selectedGroup
             })
-            
-            line
-                .datum(dataFilter[0].values)
-                .transition()
-                .duration(1000)
-                .attr("d", d3.line()
-                    .curve(d3.curveBasis)
-                    .x(function (d) {
-                        return x(d.date);
-                    })
-                    .y(function (d) {
-                        console.log(d.confirmed)
-                        //return y(d.confirmed);
-                    }))
+
+            var len = dataFilter[0].values.length - 1
+            var date = dataFilter[0].values[len].date
+            var circle_y = [dataFilter[0].values[len].confirmed, dataFilter[0].values[len].recovered, dataFilter[0].values[len].deceased]
 
             x.domain(d3.extent(dataFilter[0].values, function (d) { return d.date }))
                 .range([0, width - width / 6 - width / 4]);
             y.domain(d3.extent(dataFilter[0].values, function (d) { return d.confirmed }))
+            //console.log(d3.extent(dataFilter[0].values,function(d){return d.confirmed}))
             xAxis.attr("transform", "translate(0," + y(0) + ")")
                 .call(d3.axisBottom(x).ticks(4));
             yAxis.call(y.axis = d3.axisLeft(y)
@@ -183,8 +206,58 @@ function LineChart(props) {
 
                     return d;
                 }));
-            // updateDomains(dataFilter)
-            // updateAxes()
+
+            grid.call(make_y_gridline().tickSize(-width + width / 6 + width / 4).tickSizeOuter(0).tickFormat(""))
+
+            line_confirmed
+                .datum(dataFilter[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x(d.date);
+                    })
+                    .y(function (d) {
+                        //console.log(d.confirmed)
+                        return y(d.confirmed);
+                    }))
+
+            line_recovered
+                .datum(dataFilter[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x(d.date);
+                    })
+                    .y(function (d) {
+                        //console.log(d.confirmed)
+                        return y(d.recovered);
+                    }))
+
+            line_deceased
+                .datum(dataFilter[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x(d.date);
+                    })
+                    .y(function (d) {
+                        //console.log(d.confirmed)
+                        return y(d.deceased);
+                    }))
+
+            circle
+                .data(circle_y)
+                .transition()
+                .duration(1000)
+                .attr('cx', x(date))
+                .attr('cy', function (d, i) { return y(circle_y[i]) })
+
         }
 
 
@@ -202,90 +275,55 @@ function LineChart(props) {
         });
 
 
-        // var lineGenDeceased = d3.line()
-        //     .curve(d3.curveBasis)
-        //     .x(function (d) {
-        //         return x(d.date);
-        //     })
-        //     .y(function (d) {
-        //         return y(d.deceased);
-        //     });
+        svg.append("text")
+            .classed('label', true)
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - 6 * margin.left)
+            .attr("x", 0 - (height / 2) - 40)
+            .attr("dy", "1em")
+            .style('font-size', '0.75rem')
+            .style("text-anchor", "middle")
+            .text("Daily new Cases");
 
-        // dataGroup.forEach(function (d, i) {
-        //     svg.append('path')
-        //         .attr('id', 'line')
-        //         .attr('d', lineGenDeceased(d.values))
-        //         .attr('stroke', '#6C757D')
-        //         .attr('stroke-width', 2.5)
-        //         .attr('fill', 'none')
+        var len = check[0].values.length - 1
+        var date = check[0].values[len].date
+        var cirlce_y = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
 
-        // });
-        // var lineGenRecovered = d3.line()
-        //     .curve(d3.curveBasis)
-        //     .x(function (d) {
-        //         return x(d.date);
-        //     })
-        //     .y(function (d) {
-        //         return y(d.recovered);
-        //     });
+        //var date = props.DataAll[len].date
+        //var cirlce_y = [props.DataAll[len].confirmed, props.DataAll[len].recovered, props.DataAll[len].deceased]
+        var color = ["#007BFF", "#28A745", "#6C757D"]
+        var keys_legend = ["Confirmed", "Recovered", "Deceased"]
 
-        // dataGroup.forEach(function (d, i) {
-        //     svg.append('path')
-        //         .attr('id', 'line')
-        //         .attr('d', lineGenRecovered(d.values))
-        //         .attr('stroke', '#28A745')
-        //         .attr('stroke-width', 2.5)
-        //         .attr('fill', 'none')
+        svg.selectAll("mydots")
+            .data(keys_legend)
+            .enter()
+            .append("circle")
+            .attr("cx", function (d, i) { return 40 + i * 100 })
+            .attr("cy", 80) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("r", 3)
+            .style("fill", function (d, i) { return color[i] })
 
-        // });
+        // Add one dot in the legend for each name.
+        svg.selectAll("mylabels")
+            .data(keys_legend)
+            .enter()
+            .append("text")
+            .attr("x", function (d, i) { return 50 + i * 100 })
+            .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
+            .style("fill", function (d, i) { return color[i] })
+            .text(function (d) { return d })
+            .style('font-size', '0.75rem')
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
 
-        // svg.append("text")
-        //     .classed('label', true)
-        //     .attr("transform", "rotate(-90)")
-        //     .attr("y", 0 - 6 * margin.left)
-        //     .attr("x", 0 - (height / 2)-40)
-        //     .attr("dy", "1em")
-        //     .style('font-size', '0.75rem')
-        //     .style("text-anchor", "middle")
-        //     .text("Daily new Cases");
-
-        // var len = props.DataAll.length - 1
-        // var date = props.DataAll[len].date
-        // var cirlce_y = [props.DataAll[len].confirmed, props.DataAll[len].recovered, props.DataAll[len].deceased]
-        // var color = ["#007BFF", "#28A745", "#6C757D"]
-        // var keys_legend = ["Confirmed", "Recovered", "Deceased"]
-
-        // svg.selectAll("mydots")
-        //     .data(keys_legend)
-        //     .enter()
-        //     .append("circle")
-        //     .attr("cx", function (d, i) { return 40 + i * 100 })
-        //     .attr("cy", 80) // 100 is where the first dot appears. 25 is the distance between dots
-        //     .attr("r", 3)
-        //     .style("fill", function (d, i) { return color[i] })
-
-        // // Add one dot in the legend for each name.
-        // svg.selectAll("mylabels")
-        //     .data(keys_legend)
-        //     .enter()
-        //     .append("text")
-        //     .attr("x", function (d, i) { return 50 + i * 100 })
-        //     .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
-        //     .style("fill", function (d, i) { return color[i] })
-        //     .text(function (d) { return d })
-        //     .style('font-size', '0.75rem')
-        //     .attr("text-anchor", "left")
-        //     .style("alignment-baseline", "middle")
-
-        // svg.selectAll('circle-chart')
-        //     .data(cirlce_y)
-        //     .enter().append("circle")
-        //     .attr('id', 'circle')
-        //     .attr('r', 3.5)
-        //     .attr('cx', x(date))
-        //     .attr('cy', function (d, i) { return y(cirlce_y[i]) })
-        //     .style('fill', function (d, i) { return color[i] })
-
+        var circle = svg.selectAll('circle-chart')
+            .data(cirlce_y)
+            .enter().append("circle")
+            .attr('id', 'circle')
+            .attr('r', 3.5)
+            .attr('cx', x(date))
+            .attr('cy', function (d, i) { return y(cirlce_y[i]) })
+            .style('fill', function (d, i) { return color[i] })
 
 
 

@@ -38,3 +38,18 @@
     font-family: 'Nanum Gothic', sans-serif !important;
    
 }
+
+#fruitDropdown{
+    padding-top: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#selectStateText{
+    padding-right: 1%;
+    font-weight: 600;
+    font-family: 'Nanum Gothic', sans-serif !important;
+    font-size: 0.75em;
+    outline: thin black;
+}
