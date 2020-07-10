@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Cards, SearchBar, HeadBar, Chart, RadialChart, LineChart } from './Components';
+import { Cards, SearchBar, HeadBar, Chart, RadialChart, LineChart,AgeChart } from './Components';
 import { fetchData } from './api';
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -15,9 +15,6 @@ class App extends Component {
 
   async componentDidMount() {
     const fetchedData = await fetchData('MH');
-    AOS.init({
-      duration : 2000
-    })
     this.setState({ data: fetchedData })
   }
 
@@ -31,6 +28,7 @@ class App extends Component {
         <Chart></Chart>
         <RadialChart></RadialChart>
         <LineChart></LineChart>
+
         
       </div>
     )

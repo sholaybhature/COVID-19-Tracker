@@ -1,48 +1,76 @@
 import React, { useState, useEffect } from "react";
-import { fetchDailyData_Chart, fetchDailyDataAll } from '../../api';
+import { fetchDailyData_Chart, fetchDailyDataAll, fetchDataAll, growthRate } from '../../api';
 import * as d3 from "d3";
 import './LineChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
-import Typography from '@material-ui/core/Typography';
 
 //confirmed,deceased,recovered
 function GetDataAll() {
 
     const [DataAll, setDataAll] = useState([]);
+    const [CurrentData, setCurrentData] = useState([]);
+    const [GrowthRate, setGrowthRate] = useState([]);
 
     useEffect(() => {
         const fetchAPIAll = async () => {
             setDataAll(await fetchDailyDataAll(listState));
         }
+        const fetchAPICurrent = async () => {
+            setCurrentData(await fetchDataAll(listState));
+        }
+        const fetchGrowthRate = async () => {
+            setGrowthRate(await growthRate(listState));
+        }
+        fetchGrowthRate();
         fetchAPIAll();
+        fetchAPICurrent();
     }, []);
+
+    var dataGroup = d3.nest()
+        .key(function (d) {
+            return d.state;
+        })
+        .entries(DataAll)
+
+    var dataGroup2 = d3.nest()
+        .key(function (d) {
+            return d.state;
+        })
+        .entries(CurrentData)
+
+    var dataGroup3 = d3.nest()
+        .key(function (d) {
+            return d.state;
+        })
+        .entries(GrowthRate)
+
+
 
     return (
         <div>
             <div className="LineChart">
-                <div id="fruitDropdown">
-                    
-                </div>
-                <LineChart DataAll={DataAll} />
+                <div id="fruitDropdown"></div>
+                <LineChart DataAll={DataAll} dataGroup={dataGroup} currentData={dataGroup2} growthRate={dataGroup3} />
             </div>
         </div>)
 }
 
 
+// <div className="AgeChart">
+//                 <AgeChart DataAll={DataAll} dataGroup={dataGroup} />
+//             </div>
+
+
 function LineChart(props) {
     //console.log(props.DataAll)
+
     if (props.DataAll[0]) {
+        console.log(props.growthRate)
+
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
             width = 1150 - margin.left - margin.right,
             height = 550 - margin.top - margin.bottom;
 
-        var dataGroup = d3.nest()
-            .key(function (d) {
-                return d.state;
-            })
-            .entries(props.DataAll)
-
-        //console.log(dataGroup)
 
         var svg = d3.select(".LineChart")
             .attr('id', 'LineChart')
@@ -56,13 +84,15 @@ function LineChart(props) {
             .append("g")
             .attr("transform", "translate(" + width / 8 + "," + -10 + ")");
 
+
+
         var fruitMenu = d3.select("#fruitDropdown")
         //console.log(dataGroup)
         fruitMenu
             .append("select")
             .classed('select-box', true)
             .selectAll("option")
-            .data(dataGroup)
+            .data(props.dataGroup)
             .enter()
             .append("option")
             .attr("value", function (d) {
@@ -76,9 +106,20 @@ function LineChart(props) {
         function make_y_gridline() {
             return d3.axisLeft(y).ticks(4)
         }
-        var check = dataGroup.filter(function (d) {
+        var check = props.dataGroup.filter(function (d) {
             return d.key == "Maharashtra"
         })
+
+        var growth = props.growthRate.filter(function (d) {
+            return d.key == "Maharashtra"
+        })
+
+
+        var info = props.currentData.filter(function (d) {
+            return d.key == "Maharashtra"
+        })
+
+        console.log(info)
 
         var len = check[0].values.length - 1
         var valuesCases = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
@@ -136,6 +177,101 @@ function LineChart(props) {
                 .style('font-weight', 600)
                 .text("+" + valuesCases[0])
                 .style('fill', '#007BFF')
+        //console.log(info[0].values[0].confirmed)
+
+        var textCaseConfirmedCent =
+            svg.append('text')
+                .attr("y", d => 255)
+                .attr("x", d => 725)
+                .style("font-size", "1.15rem")
+                .style('font-weight', 600)
+                .classed('active-text', true)
+                .text("Active")
+                .style('fill', 'black')
+
+        var textCaseConfirmedCent_ =
+            svg.append('text')
+                .attr("y", d => 270)
+                .attr("x", d => 725)
+                .style("font-size", "1rem")
+                .style('font-weight', 600)
+                .text(" " + info[0].values[0].active_cent + "%")
+                .style('fill', '#007BFF')
+
+        var textCaseRecovereedCent =
+            svg.append('text')
+                .attr("y", d => 300)
+                .attr("x", d => 725)
+                .style("font-size", "1.15rem")
+                .style('font-weight', 600)
+                .classed('recovered-text', true)
+                .text("Recovered")
+                .style('fill', 'black')
+
+        var textCaseRecoveredCent_ =
+            svg.append('text')
+                .attr("y", d => 315)
+                .attr("x", d => 725)
+                .style("font-size", "1rem")
+                .style('font-weight', 600)
+                .text(" " + info[0].values[0].recovery_cent + "%")
+                .style('fill', '#28A745')
+
+        var textCaseDeceasedCent =
+            svg.append('text')
+                .attr("y", d => 345)
+                .attr("x", d => 725)
+                .style("font-size", "1.15rem")
+                .style('font-weight', 600)
+                .classed('deceased-text', true)
+                .text("Deceased")
+                .style('fill', 'black')
+
+        var textCaseDeceasedCent_ =
+            svg.append('text')
+                .attr("y", d => 360)
+                .attr("x", d => 725)
+                .style("font-size", "1rem")
+                .style('font-weight', 600)
+                .text(" " + info[0].values[0].deceased_cent + "%")
+                .style('fill', '#6C757D')
+
+        var growthRate =
+            svg.append('text')
+                .attr("y", d => 390)
+                .attr("x", d => 725)
+                .style("font-size", "1.15rem")
+                .style('font-weight', 600)
+                .classed('growthrate-text', true)
+                .text("Doubling Rate")
+                .style('fill', 'black')
+
+        var growthRate_ =
+            svg.append('text')
+                .attr("y", d => 405)
+                .attr("x", d => 725)
+                .style("font-size", "1rem")
+                .style('font-weight', 600)
+                .text(" " + growth[0].values[0].growth_rate + " " + "days")
+                .style('fill', '#FF6600')
+
+        var disclaimer =
+            svg.append('text')
+                .attr("y", d => 535)
+                .attr("x", d => 725)
+                .style("font-size", "0.5rem")
+                .style('font-weight', 400)
+                .text("*Doubling rate: t/(log(2)(cases until(x+t)-log(2)(cases until(x)) t=7")
+                .style('fill', 'gray')
+
+        var disclaimer_ =
+            svg.append('text')
+                .attr("y", d => 545)
+                .attr("x", d => 727)
+                .style("font-size", "0.5rem")
+                .style('font-weight', 400)
+                .text("Higher is better.")
+                .style('fill', 'gray')
 
         var textCaseRecovered =
             svg.append('text')
@@ -154,8 +290,6 @@ function LineChart(props) {
                 .style('font-weight', 600)
                 .text("+" + valuesCases[2])
                 .style('fill', '#6C757D')
-
-
 
 
         var line_confirmed = svg
@@ -208,9 +342,18 @@ function LineChart(props) {
 
 
         function update(selectedGroup) {
-            var dataFilter = dataGroup.filter(function (d) {
+            var dataFilter = props.dataGroup.filter(function (d) {
                 return d.key == selectedGroup
             })
+
+            var growth = props.growthRate.filter(function (d) {
+                return d.key == selectedGroup
+            })
+    
+    
+            var info = props.currentData.filter(function (d) {
+                return d.key == selectedGroup
+            })  
 
             var len = dataFilter[0].values.length - 1
             var date = dataFilter[0].values[len].date
@@ -225,6 +368,13 @@ function LineChart(props) {
             textCaseConfirmed.text("+" + circle_y[0])
             textCaseRecovered.text("+" + circle_y[1])
             textCaseDeceased.text("+" + circle_y[2])
+            textCaseConfirmedCent_.text(" " + info[0].values[0].active_cent + "%")
+            textCaseRecoveredCent_.text(" " + info[0].values[0].recovery_cent + "%")
+            textCaseDeceasedCent_.text(" " + info[0].values[0].deceased_cent + "%")
+            growthRate_.text(" " + growth[0].values[0].growth_rate + " " + "days")
+            disclaimer.text("")
+            disclaimer_.text("")
+
 
             xAxis.attr("transform", "translate(0," + y(0) + ")")
                 .call(d3.axisBottom(x).ticks(4));
@@ -318,6 +468,17 @@ function LineChart(props) {
             .style("text-anchor", "middle")
             .text("Daily new Cases");
 
+        svg.append("text")
+            .classed('label', true)
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - 4.5 * margin.left)
+            .attr("x", 0 - (height / 2) - 40)
+            .attr("dy", "1em")
+            .style('font-size', '0.425rem')
+            .style("text-anchor", "middle")
+            .style("fill", 'gray')
+            .text("(5 day moving average)");
+
         var len = check[0].values.length - 1
         var date = check[0].values[len].date
         var cirlce_y = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
@@ -403,5 +564,6 @@ function responsivefy(svg) {
         svg.attr('height', Math.round(w / aspect));
     }
 }
+
 
 export default GetDataAll;

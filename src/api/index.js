@@ -3,7 +3,7 @@ import { listState } from '../Components/CountryPicker/CountryPicker';
 
 const url = 'https://api.covid19india.org/v3/data.json';
 const url_timeseries = 'https://api.covid19india.org/v3/timeseries.json';
-
+//TODO FIX LINE ANIMATION AND ADD TOOLTIP TO LINE CHART
 
 export async function fetchData(state) {
 
@@ -108,13 +108,14 @@ export async function fetchDailyData_Chart(listState) {
 const replace = (object) => {
     var newObj = []
     for (let i = 1; i < object.length; i++) {
-        if(object[i].state === object[i-1].state){
-        newObj.push({
-            state: object[i].state, date: object[i].date, confirmed: object[i].confirmed - object[i - 1].confirmed, deceased: object[i].deceased - object[i - 1].deceased,
-            recovered: object[i].recovered - object[i - 1].recovered
-        })}
-        else{
-            i = i +1;
+        if (object[i].state === object[i - 1].state) {
+            newObj.push({
+                state: object[i].state, date: object[i].date, confirmed: object[i].confirmed - object[i - 1].confirmed, deceased: object[i].deceased - object[i - 1].deceased,
+                recovered: object[i].recovered - object[i - 1].recovered, fatality: object[i].fatality
+            })
+        }
+        else {
+            i = i + 1;
         }
     }
     return newObj
@@ -126,11 +127,18 @@ const average = (object) => {
     let sumConfirmed = 0;
     let sumDeceased = 0;
     let sumRecovered = 0;
+    let fatality = 0;
     for (let i = 5; i < object.length; i++) {
-        sumConfirmed = parseInt((object[i].confirmed + object[i-1].confirmed + object[i-2].confirmed+object[i-3].confirmed+object[i-4].confirmed)/5)
-        sumDeceased = parseInt((object[i].deceased + object[i-1].deceased + object[i-2].deceased + object[i-3].deceased + object[i-4].deceased)/5)
-        sumRecovered = parseInt((object[i].recovered + object[i-1].recovered + object[i-2].recovered + object[i-3].recovered + object[i-4].recovered)/5)
-        newObj.push({state: object[i].state, date:object[i].date, confirmed: sumConfirmed, deceased: sumDeceased, recovered: sumRecovered})
+        if (object[i].state === object[i - 1].state) {
+            sumConfirmed = parseInt((object[i].confirmed + object[i - 1].confirmed + object[i - 2].confirmed + object[i - 3].confirmed + object[i - 4].confirmed) / 5)
+            sumDeceased = parseInt((object[i].deceased + object[i - 1].deceased + object[i - 2].deceased + object[i - 3].deceased + object[i - 4].deceased) / 5)
+            sumRecovered = parseInt((object[i].recovered + object[i - 1].recovered + object[i - 2].recovered + object[i - 3].recovered + object[i - 4].recovered) / 5)
+            fatality = object[i].fatality
+            newObj.push({ state: object[i].state, date: object[i].date, confirmed: sumConfirmed, deceased: sumDeceased, recovered: sumRecovered, fatality: fatality })
+        }
+        else {
+            i = i + 5;
+        }
     }
     return newObj
 }
@@ -156,11 +164,15 @@ export async function fetchDataAll(listState) {
             }
             let recovered = accessData.recovered;
             //let tested = accessData.tested;
-            let active = confirmed - recovered + deceased
+            let active = confirmed - recovered - deceased
             total = confirmed + deceased + recovered
             let tpr = (confirmed / accessData.tested) * 100
+            let active_cent = (active / confirmed) * 100
+            let recovery_cent = (recovered / confirmed) * 100
+            let deceased_cent = (deceased / confirmed) * 100
             obj.push({
-                state: listState[keys[i]], confirmed: confirmed, deceased: deceased, recovered: recovered, total: total, tpr: tpr.toFixed(1) + '%', active: active
+                state: listState[keys[i]], confirmed: confirmed, deceased: deceased, recovered: recovered, total: total, tpr: tpr.toFixed(1) + '%', active: active,
+                active_cent: active_cent.toFixed(1), recovery_cent: recovery_cent.toFixed(1), deceased_cent: deceased_cent.toFixed(1)
             });
         }
         //checkNullorZero(obj)
@@ -169,6 +181,45 @@ export async function fetchDataAll(listState) {
         console.log("Couldn't fetch")
     }
 }
+
+export async function growthRate(listState) {
+    try {
+
+        let obj = []
+        var keys = Object.keys(listState);
+        let date_ = new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000))
+        if (date_.getDate() < 10) {
+        var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + date_.getDate();
+        var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + (date_.getDate()-7);
+        }
+        else {
+            var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + date_.getDate();
+            var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-"  + (date_.getDate()-7);
+        }
+        let response = await fetch(url_timeseries);
+        let data = await response.json();
+
+        for (var i = 0; i < 33; i++) {
+            let accessObj = keys[i]
+            let accessData = accessObj.split('.').reduce(function (o, key) {
+                return o[key];
+            }, data);
+            //console.log(accessData[date_])
+            let confirmed = accessData[date_updated].total.confirmed;
+            let confirmed_previous = accessData[previous_updated].total.confirmed;
+            let growth_rate = 7/((Math.log2(confirmed))-Math.log2(confirmed_previous))
+            obj.push({
+                state: listState[keys[i]], growth_rate: growth_rate.toFixed(1)
+            });
+        }
+        //checkNullorZero(obj)
+        return obj
+    } catch (error) {
+        console.log("Couldn't fetch")
+    }
+}
+
+
 
 export async function fetchDailyDataAll(listState) {
     const dates = getDates();
@@ -192,7 +243,7 @@ export async function fetchDailyDataAll(listState) {
                 if (accessData[dates[i]]) {
                     obj.push({
                         state: listState[accessObj], date: timestamp[i], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                        recovered: accessData[dates[i]].total.recovered
+                        recovered: accessData[dates[i]].total.recovered, fatality: ((accessData[dates[i]].total.deceased / accessData[dates[i]].total.confirmed) * 100).toFixed(2)
                     });
 
                 }
@@ -200,9 +251,11 @@ export async function fetchDailyDataAll(listState) {
 
 
         }
+        //console.log(obj)
         checkNullorZero(obj)
         var newObj = replace(obj)
-        return newObj
+        var updatedObj = average(newObj)
+        return updatedObj
 
     } catch (error) {
         console.log("Couldn't fetch")
@@ -253,6 +306,9 @@ const checkNullorZero = (obj) => {
         }
         if (obj[col].recovered === "" || obj[col].recovered === 0 || obj[col].recovered === undefined || obj[col].recovered === null || isNaN(obj[col].recovered)) {
             obj[col].recovered = 0
+        }
+        if (obj[col].fatality === "" || obj[col].fatality === 0 || obj[col].fatality === undefined || obj[col].fatality === null || isNaN(obj[col].fatality)) {
+            obj[col].fatality = 0
         }
 
     })
