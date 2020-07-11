@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Cards, SearchBar, HeadBar, Chart, RadialChart, LineChart,AgeChart } from './Components';
-import { fetchData } from './api';
+import { fetchData,growthRate } from './api';
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { listState } from './Components/CountryPicker/CountryPicker';
 
 class App extends Component {
 
@@ -28,6 +29,7 @@ class App extends Component {
         <Chart></Chart>
         <RadialChart></RadialChart>
         <LineChart></LineChart>
+ 
 
         
       </div>

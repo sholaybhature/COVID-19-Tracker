@@ -188,18 +188,16 @@ export async function growthRate(listState) {
         let obj = []
         var keys = Object.keys(listState);
         let date_ = new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000))
-        if (date_.getDate() < 10) {
-        var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + date_.getDate();
+        
+        
+        var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-"  + date_.getDate();
         var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + (date_.getDate()-7);
-        }
-        else {
-            var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + date_.getDate();
-            var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-"  + (date_.getDate()-7);
-        }
+        
         let response = await fetch(url_timeseries);
         let data = await response.json();
-
+        
         for (var i = 0; i < 33; i++) {
+            
             let accessObj = keys[i]
             let accessData = accessObj.split('.').reduce(function (o, key) {
                 return o[key];
@@ -208,10 +206,12 @@ export async function growthRate(listState) {
             let confirmed = accessData[date_updated].total.confirmed;
             let confirmed_previous = accessData[previous_updated].total.confirmed;
             let growth_rate = 7/((Math.log2(confirmed))-Math.log2(confirmed_previous))
+
             obj.push({
                 state: listState[keys[i]], growth_rate: growth_rate.toFixed(1)
             });
         }
+        // console.log(obj)
         //checkNullorZero(obj)
         return obj
     } catch (error) {
@@ -262,6 +262,68 @@ export async function fetchDailyDataAll(listState) {
     }
 
 }
+
+export async function fetchDataMiniChart(listState) {
+    const dates = getDates();
+    const timestamp = getTimeStamp();
+    let obj = []
+    var keys = Object.keys(listState);
+    //console.log(listState[keys[1]])
+
+    try {
+        for (var i = 0; i < 33; i++) {
+            let accessObj = keys[i]
+            //console.log(accessObj)
+            let response = await fetch(url_timeseries);
+            let data = await response.json()
+            let accessData = accessObj.split('.').reduce(function (o, key) {
+                return o[key];
+            }, data);
+            //console.log(accessData)
+
+            for (let i = 0; i < dates.length - 1; i++) {
+                if (accessData[dates[i]]) {
+                    if(accessData[dates[i]].total.deceased){
+                    obj.push({
+                        state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                        recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
+                        active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased-accessData[dates[i]].total.recovered
+                    })}
+                    else{
+                        if(accessData[dates[i]].total.recovered){
+                            obj.push({
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
+                                active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.recovered
+                            })
+                        }
+                        else{
+                            obj.push({
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
+                                active: accessData[dates[i]].total.confirmed
+                            })
+                        }
+                    }
+                    
+                
+                }
+            }
+
+
+        }
+        //console.log(obj)
+         checkNullorZero(obj)
+        // var newObj = replace(obj)
+        // var updatedObj = average(newObj)
+        return obj
+
+    } catch (error) {
+        console.log("Couldn't fetch")
+    }
+
+}
+
 
 // To get the dates and fetch data from API
 const getDates = () => {

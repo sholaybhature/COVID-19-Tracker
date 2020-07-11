@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { fetchDailyData_Chart, fetchDailyDataAll, fetchDataAll, growthRate } from '../../api';
+import { fetchDataMiniChart, fetchDailyDataAll, fetchDataAll, growthRate } from '../../api';
 import * as d3 from "d3";
 import './LineChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
+
 
 //confirmed,deceased,recovered
 function GetDataAll() {
@@ -10,6 +11,7 @@ function GetDataAll() {
     const [DataAll, setDataAll] = useState([]);
     const [CurrentData, setCurrentData] = useState([]);
     const [GrowthRate, setGrowthRate] = useState([]);
+    const [MiniChart, setMiniChart] = useState([]);
 
     useEffect(() => {
         const fetchAPIAll = async () => {
@@ -21,6 +23,10 @@ function GetDataAll() {
         const fetchGrowthRate = async () => {
             setGrowthRate(await growthRate(listState));
         }
+        const fetchMiniChart = async () => {
+            setMiniChart(await fetchDataMiniChart(listState));
+        }
+        fetchMiniChart();
         fetchGrowthRate();
         fetchAPIAll();
         fetchAPICurrent();
@@ -44,13 +50,17 @@ function GetDataAll() {
         })
         .entries(GrowthRate)
 
-
+    var dataGroup4 = d3.nest()
+        .key(function (d) {
+            return d.state;
+        })
+        .entries(MiniChart)
 
     return (
         <div>
             <div className="LineChart">
                 <div id="fruitDropdown"></div>
-                <LineChart DataAll={DataAll} dataGroup={dataGroup} currentData={dataGroup2} growthRate={dataGroup3} />
+                <LineChart DataAll={DataAll} dataGroup={dataGroup} currentData={dataGroup2} growthRate={dataGroup3} miniChart={dataGroup4} />
             </div>
         </div>)
 }
@@ -64,8 +74,8 @@ function GetDataAll() {
 function LineChart(props) {
     //console.log(props.DataAll)
 
-    if (props.DataAll[0]) {
-        console.log(props.growthRate)
+    if (props.dataGroup[0] && props.currentData[0] && props.growthRate[0] && props.miniChart[0]) {
+        console.log(props.miniChart)
 
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
             width = 1150 - margin.left - margin.right,
@@ -119,7 +129,9 @@ function LineChart(props) {
             return d.key == "Maharashtra"
         })
 
-        console.log(info)
+        var mini = props.miniChart.filter(function (d) {
+            return d.key == "Maharashtra"
+        })
 
         var len = check[0].values.length - 1
         var valuesCases = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
@@ -132,6 +144,23 @@ function LineChart(props) {
         var y = d3.scaleLinear()
             .domain(d3.extent(check[0].values, function (d) { return d.confirmed }))
             .range([height, 100])
+
+        var x_mini = d3.scaleTime()
+            .domain(d3.extent(mini[0].values, function (d) { return d.date }))
+            .range([0, 70])
+
+
+        var y_active = d3.scaleLinear()
+            .domain(d3.extent(mini[0].values, function (d) { return d.active }))
+            .range([25, 0]);
+
+        var y_recovered = d3.scaleLinear()
+            .domain(d3.extent(mini[0].values, function (d) { return d.recovered }))
+            .range([25, 0]);
+
+        var y_deceased = d3.scaleLinear()
+            .domain(d3.extent(mini[0].values, function (d) { return d.deceased }))
+            .range([25, 0]);
 
 
         var yAxis =
@@ -308,6 +337,24 @@ function LineChart(props) {
             .attr('stroke-width', 2.5)
             .attr('fill', 'none')
 
+        var line_active_mini = svg
+            .append('g')
+            .append("path")
+            .attr("transform", "translate(825," + 245 + ")")
+            .datum(mini[0].values)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(function (d) {
+                    return x_mini(d.date);
+                })
+                .y(function (d) {
+                    return y_active(d.active);
+                }))
+            .attr('stroke', '#007BFF')
+            .attr('stroke-width', 2.5)
+            .attr('fill', 'none')
+
+
         var line_recovered = svg
             .append('g')
             .append("path")
@@ -323,6 +370,24 @@ function LineChart(props) {
             .attr('stroke', '#28A745')
             .attr('stroke-width', 2.5)
             .attr('fill', 'none')
+
+        var line_recovered_mini = svg
+            .append('g')
+            .append("path")
+            .attr("transform", "translate(825," + 290 + ")")
+            .datum(mini[0].values)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(function (d) {
+                    return x_mini(d.date);
+                })
+                .y(function (d) {
+                    return y_recovered(d.recovered);
+                }))
+            .attr('stroke', '#28A745')
+            .attr('stroke-width', 2.5)
+            .attr('fill', 'none')
+
 
         var line_deceased = svg
             .append('g')
@@ -340,6 +405,22 @@ function LineChart(props) {
             .attr('stroke-width', 2.5)
             .attr('fill', 'none')
 
+        var line_deceased_mini = svg
+            .append('g')
+            .append("path")
+            .attr("transform", "translate(825," + 335 + ")")
+            .datum(mini[0].values)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(function (d) {
+                    return x_mini(d.date);
+                })
+                .y(function (d) {
+                    return y_deceased(d.deceased);
+                }))
+            .attr('stroke', '#6C757D')
+            .attr('stroke-width', 2.5)
+            .attr('fill', 'none')
 
         function update(selectedGroup) {
             var dataFilter = props.dataGroup.filter(function (d) {
@@ -349,11 +430,15 @@ function LineChart(props) {
             var growth = props.growthRate.filter(function (d) {
                 return d.key == selectedGroup
             })
-    
-    
+
+
             var info = props.currentData.filter(function (d) {
                 return d.key == selectedGroup
-            })  
+            })
+
+            var mini = props.miniChart.filter(function (d) {
+                return d.key == selectedGroup
+            })
 
             var len = dataFilter[0].values.length - 1
             var date = dataFilter[0].values[len].date
@@ -362,6 +447,11 @@ function LineChart(props) {
             x.domain(d3.extent(dataFilter[0].values, function (d) { return d.date }))
                 .range([0, width - width / 6 - width / 4]);
             y.domain(d3.extent(dataFilter[0].values, function (d) { return d.confirmed }))
+            x_mini.domain(d3.extent(mini[0].values, function (d) { return d.date }))
+            y_active.domain(d3.extent(mini[0].values, function (d) { return d.active }))
+            y_recovered.domain(d3.extent(mini[0].values, function (d) { return d.recovered }))
+            y_deceased.domain(d3.extent(mini[0].values, function (d) { return d.deceased }))
+
             //console.log(d3.extent(dataFilter[0].values,function(d){return d.confirmed}))
 
             text.text(selectedGroup)
@@ -406,6 +496,19 @@ function LineChart(props) {
                         return y(d.confirmed);
                     }))
 
+            line_active_mini
+                .datum(mini[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x_mini(d.date);
+                    })
+                    .y(function (d) {
+                        return y_active(d.active);
+                    }))
+
             line_recovered
                 .datum(dataFilter[0].values)
                 .transition()
@@ -420,6 +523,20 @@ function LineChart(props) {
                         return y(d.recovered);
                     }))
 
+            line_recovered_mini
+                .datum(mini[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x_mini(d.date);
+                    })
+                    .y(function (d) {
+                        return y_recovered(d.recovered);
+                    }))
+
+
             line_deceased
                 .datum(dataFilter[0].values)
                 .transition()
@@ -433,6 +550,20 @@ function LineChart(props) {
                         //console.log(d.confirmed)
                         return y(d.deceased);
                     }))
+
+            line_deceased_mini
+                .datum(mini[0].values)
+                .transition()
+                .duration(1000)
+                .attr("d", d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function (d) {
+                        return x_mini(d.date);
+                    })
+                    .y(function (d) {
+                        return y_deceased(d.deceased);
+                    }))
+
 
             circle
                 .data(circle_y)
