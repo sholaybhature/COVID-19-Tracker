@@ -502,10 +502,12 @@ function LineChart(props) {
                 .duration(1000)
                 .attr("d", d3.line()
                     .curve(d3.curveBasis)
-                    .x(function (d) {
+                    .x(function (d, i) {
+                        //console.log(d.date)
                         return x_mini(d.date);
                     })
-                    .y(function (d) {
+                    .y(function (d, i) {
+                        //console.log(y_active(d.active))
                         return y_active(d.active);
                     }))
 
@@ -589,6 +591,7 @@ function LineChart(props) {
         });
 
 
+
         svg.append("text")
             .classed('label', true)
             .attr("transform", "rotate(-90)")
@@ -650,11 +653,26 @@ function LineChart(props) {
             .attr('cy', function (d, i) { return y(cirlce_y[i]) })
             .style('fill', function (d, i) { return color[i] })
 
+        var search_btn = document.getElementsByClassName("searchButton")
 
+        search_btn[0].addEventListener("click", function () {
+            const title = document.getElementById('standard-basic').value
+            //console.log(title)
+            try{
+                update(title)
+            }
+            catch (error){
+                console.log('Incorrect key')
+            }
+         });
+        // console.log(x[0])
+        //const title = document.getElementById('standard-basic')
+        //console.log(title)
 
     }
     return null;
 }
+
 
 function responsivefy(svg) {
     // container will be the DOM element

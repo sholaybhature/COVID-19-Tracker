@@ -284,11 +284,21 @@ export async function fetchDataMiniChart(listState) {
             for (let i = 0; i < dates.length - 1; i++) {
                 if (accessData[dates[i]]) {
                     if(accessData[dates[i]].total.deceased){
-                    obj.push({
-                        state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                        recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
-                        active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased-accessData[dates[i]].total.recovered
-                    })}
+                        if(accessData[dates[i]].total.recovered){
+                            obj.push({
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
+                                active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased-accessData[dates[i]].total.recovered
+                            })
+                        }
+                        else{
+                            obj.push({
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
+                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
+                                active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased
+                            })
+                        }
+                    }
                     else{
                         if(accessData[dates[i]].total.recovered){
                             obj.push({

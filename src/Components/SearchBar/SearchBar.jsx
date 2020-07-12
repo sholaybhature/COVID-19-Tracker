@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useRef, Component, useState, useEffect } from 'react';
 import styles from './SearchBar.module.css';
 import CountUp from 'react-countup';
 import cx from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import InputBase from '@material-ui/core/InputBase';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { fade, makeStyles, createMuiTheme } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -20,49 +22,22 @@ const useStyles = makeStyles((theme) => ({
             margin: theme.spacing(1),
             width: '50%',
             marginLeft: '25%',
-        },
-    },
-    search: {
-        position: 'relative',
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: 'inherit',
-        marginLeft: 0,
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing(1),
-            width: 'auto',
+            [theme.breakpoints.down('sm')]: {
+                marginLeft: '22%'
+            },
+
         },
     },
     searchIcon: {
-        marginLeft: '30%',
-        padding: theme.spacing(0, 2),
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    inputRoot: {
-    },
-    icon: {
-        color: '#f2f2f2',
-    },
-    inputInput: {
+        paddingLeft: '1ch',
 
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-
-        [theme.breakpoints.up('sm')]: {
-            width: '15ch',
-            '&:focus': {
-                width: '20ch',
-            },
+    },
+    textField: {
+        [theme.breakpoints.down('sm')]: {
+            width: '25ch',
         },
     },
+
 
 }));
 
@@ -82,16 +57,53 @@ function showCurrentTime() {
     return dateStr;
 }
 
+
+
+
+
 const Search = () => {
+
+    const [searchInput, setSearchInput] = useState('')
     const classes = useStyles();
+
+    function changeSelected() {
+        var sel = document.getElementsByClassName('select-box')
+        var opts = sel[0].options;
+        console.log(opts[8].value)
+        //console.log(searchInput)
+        for (var opt, j = 0; opt = opts[j]; j++) {
+            console.log(opt.value)
+            if (opt.value == searchInput) {
+                sel[0].selectedIndex = j;
+                setSearchInput('');
+                var elmntToView = document.getElementsByClassName('my-svg-chart');
+                elmntToView[0].scrollIntoView({
+                    behavior: 'smooth'
+                });
+                break;
+            }
+        }
+
+    }
+
     return (
         <div>
             <Container fixed className={styles.Container}>
                 <div className={classes.search}>
                     <form className={classes.root} noValidate autoComplete="off">
-                        <TextField id="standard-basic" label="Search for a state" variant="outlined" />
+                        <TextField className={'search-box', classes.textField} id="standard-basic" label="Search for a state" variant="outlined" onChange={e => setSearchInput(e.target.value)}
+                            value={searchInput}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment>
+                                        <IconButton className={cx('searchButton', classes.searchIcon)} onClick={changeSelected}>
+                                            <SearchIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }} />
                     </form>
-                    
+
                     {/* <InputBase
                             placeholder="Search…"
                             className={styles.InputBase}
