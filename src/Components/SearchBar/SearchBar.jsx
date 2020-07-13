@@ -13,7 +13,13 @@ import IconButton from "@material-ui/core/IconButton";
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
-import { listState } from '../CountryPicker/CountryPicker'
+import { listState, searchState } from '../CountryPicker/CountryPicker'
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import './AutoComplete.css'
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -25,8 +31,19 @@ const useStyles = makeStyles((theme) => ({
             [theme.breakpoints.down('sm')]: {
                 marginLeft: '22%'
             },
+            [theme.breakpoints.between('sm', 'md')]: {
+                marginLeft: '30%'
+            },
+            [theme.breakpoints.only('md')]: {
+                marginLeft: '27%'
+            },
 
         },
+    },
+
+    list: {
+        background: 'red',
+        borderRadius: '10px',
     },
     searchIcon: {
         paddingLeft: '1ch',
@@ -64,15 +81,14 @@ function showCurrentTime() {
 const Search = () => {
 
     const [searchInput, setSearchInput] = useState('')
+    const [stateList, setStateList] = useState(searchState)
+    const [suggestions, setSuggestions] = useState([]);
     const classes = useStyles();
 
     function changeSelected() {
         var sel = document.getElementsByClassName('select-box')
         var opts = sel[0].options;
-        console.log(opts[8].value)
-        //console.log(searchInput)
         for (var opt, j = 0; opt = opts[j]; j++) {
-            console.log(opt.value)
             if (opt.value == searchInput) {
                 sel[0].selectedIndex = j;
                 setSearchInput('');
@@ -83,6 +99,40 @@ const Search = () => {
                 break;
             }
         }
+    }
+
+    function onTextChanged(e) {
+        setSearchInput(e.target.value)
+    }
+
+    function checkSuggestions() {
+        let suggestions = [];
+        if (searchInput.length > 0) {
+            const regex = new RegExp(`^${searchInput}`, 'i');
+            suggestions = stateList.sort().filter(v => regex.test(v));
+        }
+        setSuggestions(suggestions)
+    }
+
+    function suggestionSelected(value) {
+        setSuggestions([]);
+        setSearchInput(value)
+
+    }
+
+    useEffect(() => {
+        checkSuggestions();
+    }, [searchInput]);
+
+    function renderSuggestions() {
+        if (suggestions.length === 0) {
+            return null;
+        }
+        return (
+            <List component="nav" aria-label="main mailbox folders">
+                {suggestions.map((item) => <ListItem className={classes.list} onClick={() => suggestionSelected(item)}>{item}</ListItem>)}
+            </List>
+        )
 
     }
 
@@ -91,7 +141,8 @@ const Search = () => {
             <Container fixed className={styles.Container}>
                 <div className={classes.search}>
                     <form className={classes.root} noValidate autoComplete="off">
-                        <TextField className={'search-box', classes.textField} id="standard-basic" label="Search for a state" variant="outlined" onChange={e => setSearchInput(e.target.value)}
+                        <TextField className={'search-box', classes.textField} id="standard-basic" label="Search for a state" variant="outlined"
+                            onChange={onTextChanged}
                             value={searchInput}
                             InputProps={{
                                 endAdornment: (
@@ -102,17 +153,9 @@ const Search = () => {
                                     </InputAdornment>
                                 )
                             }} />
-                    </form>
+                        {renderSuggestions()}
 
-                    {/* <InputBase
-                            placeholder="Search…"
-                            className={styles.InputBase}
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                        /> */}
+                    </form>
                 </div>
                 <Box pt={2}>
                     <Typography align="center" className={styles.showCurrentTime}>{showCurrentTime()}</Typography>
