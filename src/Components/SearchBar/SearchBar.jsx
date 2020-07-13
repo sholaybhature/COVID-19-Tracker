@@ -20,7 +20,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -40,10 +40,14 @@ const useStyles = makeStyles((theme) => ({
 
         },
     },
-
-    list: {
-        background: 'red',
-        borderRadius: '10px',
+    ListItem: {
+        backgroundColor: theme.palette.background.paper,
+        "&:hover": {
+            backgroundColor: "#FFF"
+        }
+    },
+    ListItemBox: {
+        boxShadow: '5px' 
     },
     searchIcon: {
         paddingLeft: '1ch',
@@ -74,10 +78,6 @@ function showCurrentTime() {
     return dateStr;
 }
 
-
-
-
-
 const Search = () => {
 
     const [searchInput, setSearchInput] = useState('')
@@ -85,6 +85,7 @@ const Search = () => {
     const [suggestions, setSuggestions] = useState([]);
     const classes = useStyles();
 
+    //Update my svg
     function changeSelected() {
         var sel = document.getElementsByClassName('select-box')
         var opts = sel[0].options;
@@ -101,36 +102,57 @@ const Search = () => {
         }
     }
 
+    //Update searchiInput 
     function onTextChanged(e) {
         setSearchInput(e.target.value)
+        let suggestions = [];
+        try{
+            if (searchInput.length > 0) {
+                const regex = new RegExp(`^${searchInput}`, 'i');
+                suggestions = stateList.sort().filter(v => regex.test(v));
+            }}
+            catch(error){
+                console.log('Regex search')
+            }
+        setSuggestions(suggestions)
     }
 
+    //Check if the country is present 
     function checkSuggestions() {
         let suggestions = [];
+        try{
         if (searchInput.length > 0) {
             const regex = new RegExp(`^${searchInput}`, 'i');
             suggestions = stateList.sort().filter(v => regex.test(v));
+        }}
+        catch(error){
+            console.log('Regex search')
         }
         setSuggestions(suggestions)
     }
 
+    //Something is wrong here, might need to use useEffect, can't seem to make it work.
     function suggestionSelected(value) {
-        setSuggestions([]);
+        //setSuggestions([]);
         setSearchInput(value)
-
     }
 
-    useEffect(() => {
-        checkSuggestions();
-    }, [searchInput]);
 
+    //Updating this because it doesn't capture last character of input.
+    // useEffect(() => {
+    //     checkSuggestions();
+    // }, [searchInput]);
+
+    //Show country suggestions
     function renderSuggestions() {
         if (suggestions.length === 0) {
             return null;
         }
         return (
-            <List component="nav" aria-label="main mailbox folders">
-                {suggestions.map((item) => <ListItem className={classes.list} onClick={() => suggestionSelected(item)}>{item}</ListItem>)}
+            <List className={classes.ListItemBox}>
+                {suggestions.map((item) =>  <ListItem className={cx('listSuggestions', classes.ListItemClick)} 
+                onClick={() => {setSuggestions([]); suggestionSelected(item); }}>{item}</ListItem>)}
+               <Divider light />
             </List>
         )
 
