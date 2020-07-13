@@ -9,6 +9,10 @@
     font-size: 0.75rem;
     
 }
+.x-axis{
+    font-size: 0.75rem;
+    
+}
 
 .grid .tick{
     opacity: 0.10;
@@ -37,7 +41,7 @@
 .label{
     font-weight: 400;
     font-family: 'Gothic A1', sans-serif;
-   
+
 }
 
 #fruitDropdown{

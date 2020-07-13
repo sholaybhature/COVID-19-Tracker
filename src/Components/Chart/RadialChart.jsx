@@ -142,7 +142,7 @@ function RadialChart(props) {
             .append("text")
             .text(function (d) { return (d.state) })
             .attr("transform", function (d) { return (x(d.state) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
-            .style("font-size", "11px")
+            .style("font-size", "12px")
             .attr("alignment-baseline", "middle")
 
 

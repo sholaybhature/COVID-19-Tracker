@@ -4,6 +4,7 @@ import { listState } from '../Components/CountryPicker/CountryPicker';
 const url = 'https://api.covid19india.org/v3/data.json';
 const url_timeseries = 'https://api.covid19india.org/v3/timeseries.json';
 //TODO FIX LINE ANIMATION AND ADD TOOLTIP TO LINE CHART
+const url_national = 'https://api.covid19india.org/data.json';
 
 export async function fetchData(state) {
 
@@ -25,6 +26,23 @@ export async function fetchData(state) {
         console.log("Couldn't fetch")
     }
 
+}
+
+export async function fetchNationalData(){
+    try{
+        let response = await fetch(url_national);
+        let data = await response.json();
+        let accessData = data.cases_time_series
+        let len = accessData.length - 1
+        let confirmed = accessData[len].totalconfirmed
+        let deceased = accessData[len].totaldeceased
+        let recovered = accessData[len].totalrecovered
+        let active = accessData[len].totalconfirmed-accessData[len].totaldeceased-accessData[len].totalrecovered
+        return {confirmed, deceased, recovered, active}
+    }
+    catch(error){
+        console.log("Couldn't fetch")
+    }
 }
 
 export async function fetchDailyData(state) {
@@ -286,32 +304,32 @@ export async function fetchDataMiniChart(listState) {
                     if(accessData[dates[i]].total.deceased){
                         if(accessData[dates[i]].total.recovered){
                             obj.push({
-                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
-                                active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased-accessData[dates[i]].total.recovered
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: (accessData[dates[i]].total.deceased/accessData[dates[i]].total.confirmed)*100,
+                                recovered: (accessData[dates[i]].total.recovered/accessData[dates[i]].total.confirmed)*100, fatality: 0, date: timestamp[i],
+                                active: ((accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased-accessData[dates[i]].total.recovered)/accessData[dates[i]].total.confirmed)*100
                             })
                         }
                         else{
                             obj.push({
-                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
-                                active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: (accessData[dates[i]].total.deceased/accessData[dates[i]].total.confirmed)*100,
+                                recovered: (accessData[dates[i]].total.recovered/accessData[dates[i]].total.confirmed)*100, fatality: 0, date: timestamp[i],
+                                active: ((accessData[dates[i]].total.confirmed-accessData[dates[i]].total.deceased)/accessData[dates[i]].total.confirmed)*100
                             })
                         }
                     }
                     else{
                         if(accessData[dates[i]].total.recovered){
                             obj.push({
-                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
-                                active: accessData[dates[i]].total.confirmed-accessData[dates[i]].total.recovered
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: (accessData[dates[i]].total.deceased/accessData[dates[i]].total.confirmed)*100,
+                                recovered: (accessData[dates[i]].total.recovered/accessData[dates[i]].total.confirmed)*100, fatality: 0, date: timestamp[i],
+                                active: ((accessData[dates[i]].total.confirmed-accessData[dates[i]].total.recovered)/accessData[dates[i]].total.confirmed)*100
                             })
                         }
                         else{
                             obj.push({
-                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                                recovered: accessData[dates[i]].total.recovered, fatality: 0, date: timestamp[i],
-                                active: accessData[dates[i]].total.confirmed
+                                state: listState[accessObj], confirmed: accessData[dates[i]].total.confirmed, deceased: (accessData[dates[i]].total.deceased/accessData[dates[i]].total.confirmed)*100,
+                                recovered: (accessData[dates[i]].total.recovered/accessData[dates[i]].total.confirmed)*100, fatality: 0, date: timestamp[i],
+                                active: (accessData[dates[i]].total.confirmed/accessData[dates[i]].total.confirmed)*100
                             })
                         }
                     }

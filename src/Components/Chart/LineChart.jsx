@@ -640,7 +640,7 @@ function LineChart(props) {
             .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
             .style("fill", function (d, i) { return color[i] })
             .text(function (d) { return d })
-            .style('font-size', '0.75rem')
+            .style('font-size', '0.85rem')
             .attr("text-anchor", "left")
             .style("alignment-baseline", "middle")
 
@@ -672,6 +672,7 @@ function LineChart(props) {
     }
     return null;
 }
+
 
 
 function responsivefy(svg) {

@@ -57,6 +57,11 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('sm')]: {
             width: '25ch',
         },
+        '&:hover':{
+        boxShadow: '5px 5px 5px rgba(0, 0, 0, .13)',
+        },
+        
+
     },
 
 
@@ -162,7 +167,7 @@ const Search = () => {
         <div>
             <Container fixed className={styles.Container}>
                 <div className={classes.search}>
-                    <form className={classes.root} noValidate autoComplete="off">
+                    <form className={classes.root} noValidate autoComplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                         <TextField className={'search-box', classes.textField} id="standard-basic" label="Search for a state" variant="outlined"
                             onChange={onTextChanged}
                             value={searchInput}

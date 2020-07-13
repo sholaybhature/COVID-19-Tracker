@@ -5,3 +5,5 @@ export {default as Chart} from './Chart/Chart';
 export {default as RadialChart} from './Chart/RadialChart';
 export {default as LineChart} from './Chart/LineChart';
 export {default as AgeChart} from './Chart/AgeChart';
+export {default as Footer} from './Footer/Footer';
+

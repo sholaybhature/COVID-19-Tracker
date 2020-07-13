@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-const Cards = ({ data: { confirmed, recovered, deceased, active, tested } }) => {
+const Cards = ({ data: { confirmed, recovered, deceased, active } }) => {
     const classes = useStyles();
     if (!confirmed) {
         return <div className={styles.Loading}><Typography variant="h5" align="center">Loading...</Typography></div>
