@@ -1,25 +1,17 @@
-import React, { useRef, Component, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './SearchBar.module.css';
-import CountUp from 'react-countup';
 import cx from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import InputBase from '@material-ui/core/InputBase';
-import { fade, makeStyles, createMuiTheme } from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu';
+import { makeStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-import { listState, searchState } from '../CountryPicker/CountryPicker'
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import './AutoComplete.css'
+import { searchState } from '../CountryPicker/CountryPicker'
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme) => ({
@@ -47,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
         }
     },
     ListItemBox: {
-        boxShadow: '5px' 
+        boxShadow: '5px'
     },
     searchIcon: {
         paddingLeft: '1ch',
@@ -57,36 +49,20 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('sm')]: {
             width: '25ch',
         },
-        '&:hover':{
-        boxShadow: '5px 5px 5px rgba(0, 0, 0, .13)',
+        '&:hover': {
+            boxShadow: '5px 5px 5px rgba(0, 0, 0, .13)',
         },
-        
+
 
     },
 
 
 }));
 
-function showCurrentTime() {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-    const d = new Date();
-    const month = monthNames[d.getMonth()]
-    const date = d.getDate();
-    let hours = d.getHours();
-    let minutes = d.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    var strTime = hours + ':' + minutes + ' ' + ampm;
-    const dateStr = date + " " + month + " " + hours + ":" + minutes + " " + ampm + " " + "IST";
-    return dateStr;
-}
 
 const Search = () => {
 
     const [searchInput, setSearchInput] = useState('')
-    const [stateList, setStateList] = useState(searchState)
     const [suggestions, setSuggestions] = useState([]);
     const classes = useStyles();
 
@@ -111,26 +87,14 @@ const Search = () => {
     function onTextChanged(e) {
         setSearchInput(e.target.value)
         let suggestions = [];
-        try{
+        //Check if the country is present 
+        try {
             if (searchInput.length > 0) {
                 const regex = new RegExp(`^${searchInput}`, 'i');
-                suggestions = stateList.sort().filter(v => regex.test(v));
-            }}
-            catch(error){
-                console.log('Regex search')
+                suggestions = searchState.sort().filter(v => regex.test(v));
             }
-        setSuggestions(suggestions)
-    }
-
-    //Check if the country is present 
-    function checkSuggestions() {
-        let suggestions = [];
-        try{
-        if (searchInput.length > 0) {
-            const regex = new RegExp(`^${searchInput}`, 'i');
-            suggestions = stateList.sort().filter(v => regex.test(v));
-        }}
-        catch(error){
+        }
+        catch (error) {
             console.log('Regex search')
         }
         setSuggestions(suggestions)
@@ -155,9 +119,9 @@ const Search = () => {
         }
         return (
             <List className={classes.ListItemBox}>
-                {suggestions.map((item) =>  <ListItem className={cx('listSuggestions', classes.ListItemClick)} 
-                onClick={() => {setSuggestions([]); suggestionSelected(item); }}>{item}</ListItem>)}
-               <Divider light />
+                {suggestions.map((item) => <ListItem className={cx('listSuggestions', classes.ListItemClick)}
+                    onClick={() => { setSuggestions([]); suggestionSelected(item); }}>{item}</ListItem>)}
+                <Divider light />
             </List>
         )
 
@@ -181,7 +145,6 @@ const Search = () => {
                                 )
                             }} />
                         {renderSuggestions()}
-
                     </form>
                 </div>
                 <Box pt={2}>
@@ -191,5 +154,21 @@ const Search = () => {
         </div>
     )
 }
+
+function showCurrentTime() {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    const d = new Date();
+    const month = monthNames[d.getMonth()]
+    const date = d.getDate();
+    let hours = d.getHours();
+    let minutes = d.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    const dateStr = date + " " + month + " " + hours + ":" + minutes + " " + ampm + " " + "IST";
+    return dateStr;
+}
+
 
 export default Search;

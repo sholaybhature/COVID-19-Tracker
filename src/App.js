@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { Cards, SearchBar, HeadBar, Chart, RadialChart, LineChart,AgeChart, Footer } from './Components';
-import { fetchData,growthRate, fetchNationalData } from './api';
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { listState } from './Components/CountryPicker/CountryPicker';
-console.log(fetchNationalData())
+import { Cards, SearchBar, HeadBar, Chart, RadialChart, LineChart} from './Components';
+import { fetchNationalData } from './api';
+
+
 class App extends Component {
 
   state = {
@@ -29,10 +25,6 @@ class App extends Component {
         <Chart></Chart>
         <RadialChart></RadialChart>
         <LineChart></LineChart>
-
- 
-
-        
       </div>
     )
   }

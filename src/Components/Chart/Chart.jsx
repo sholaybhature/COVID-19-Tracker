@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { fetchData, fetchDailyData,fetchDailyDataAll } from '../../api';
+import { fetchDailyData} from '../../api';
 import * as d3 from "d3";
 import './Chart.css';
-import {listState} from '../CountryPicker/CountryPicker';
 
-//confirmed,deceased,recovered
 function GetData() {
 
     const [dailyData, setDailyData] = useState([]);
-    const [dailyDataAll, setDailyDataAll] = useState([]);
 
     useEffect(() => {
         
         const fetchAPI = async () => {
             setDailyData(await fetchDailyData('MH'));
-            //setDailyDataAll(await fetchDailyDataAll(listState));
         }
         fetchAPI();
     }, []);
@@ -39,7 +35,9 @@ function GetData() {
 };
 
 function LineChart(props) {
+
     if (props.dailyData.date) {
+        //Set SVG attributes
         var margin = { top: 10, right: 30, bottom: 30, left: 60 },
             width = 300 - margin.left - margin.right,
             height = 150 - margin.top - margin.bottom;
@@ -47,30 +45,23 @@ function LineChart(props) {
         var svg = d3.select('#' + props.chartName)
             .append("svg")
             .classed("svg-container", true)
-            //.attr("preserveAspectRatio", "xMinYMin meet")
-            // .attr("viewBox", "0 0 360 200")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .call(responsivefy)
             .append("g")
             .attr("transform",
                 "translate(" +0+ "," + margin.top + ")");
-        // console.log(d3.extent(props.dailyData.date))
-        const xScale = d3.scaleTime().range([0, width]);
-        const yScale = d3.scaleLinear().rangeRound([height, 0]);
         
         var x = d3.scaleTime()
             .domain(d3.extent(props.dailyData.date))
             .range([0, width]);
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
-        //.call(d3.axisBottom(x).ticks(4));
 
         var y = d3.scaleLinear()
             .domain([0, d3.max(props.dailyData[props.chartName])])
             .rangeRound([height, 0]);
         svg.append("g")
-        //.call(d3.axisLeft(y))
         
         var obj = [];
         for (var i = 0; i < props.dailyData.recovered.length - 1; i++) {

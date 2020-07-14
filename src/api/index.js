@@ -1,34 +1,11 @@
-import axios from 'axios';
-import { listState } from '../Components/CountryPicker/CountryPicker';
-
 const url = 'https://api.covid19india.org/v3/data.json';
 const url_timeseries = 'https://api.covid19india.org/v3/timeseries.json';
-//TODO FIX LINE ANIMATION AND ADD TOOLTIP TO LINE CHART
 const url_national = 'https://api.covid19india.org/data.json';
 
-export async function fetchData(state) {
 
-    try {
-        const suffix = '.total';
-        const accessObj = state + suffix
-        let response = await fetch(url);
-        let data = await response.json();
-        let accessData = accessObj.split('.').reduce(function (o, key) {
-            return o[key];
-        }, data);
-        let confirmed = accessData.confirmed;
-        let deceased = accessData.deceased;
-        let recovered = accessData.recovered;
-        let tested = accessData.tested;
-        let active = confirmed - recovered + deceased
-        return { confirmed, deceased, recovered, tested, active };
-    } catch (error) {
-        console.log("Couldn't fetch")
-    }
-
-}
-
+//For fetching data for main graphs
 export async function fetchNationalData(){
+
     try{
         let response = await fetch(url_national);
         let data = await response.json();
@@ -45,20 +22,19 @@ export async function fetchNationalData(){
     }
 }
 
+//For fetching daily data for states
 export async function fetchDailyData(state) {
+
     const dates = getDates();
     const timestamp = getTimeStamp();
 
     try {
-        //const suffix = '[dates[i]].total';
         const accessObj = state
-        //console.log(accessObj)
         let response = await fetch(url_timeseries);
         let data = await response.json()
         let accessData = accessObj.split('.').reduce(function (o, key) {
             return o[key];
         }, data);
-        //console.log(accessData["2020-03-17"].total)
         let confirmed = [];
         let deceased = [];
         let recovered = [];
@@ -85,85 +61,10 @@ export async function fetchDailyData(state) {
 
 }
 
-export async function fetchDailyData_Chart(listState) {
-    const dates = getDates();
-    const timestamp = getTimeStamp();
-    let obj = []
-
-    try {
-
-        let accessObj = listState
-        //console.log(accessObj)
-        let response = await fetch(url_timeseries);
-        let data = await response.json()
-        let accessData = accessObj.split('.').reduce(function (o, key) {
-            return o[key];
-        }, data);
-        //console.log(accessData)
-
-        for (let i = 1; i < dates.length - 1; i++) {
-            if (accessData[dates[i]]) {
-                obj.push({
-                    state: accessObj, date: timestamp[i], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
-                    recovered: accessData[dates[i]].total.recovered, active: accessData[dates[i]].total.confirmed - accessData[dates[i]].total.recovered + accessData[dates[i]].total.deceased
-                });
-            }
-
-        }
-        //console.log(obj)
-        //console.log(obj[3].confirmed - obj[2].confirmed)
-        checkNullorZero(obj)
-        var newObj = replace(obj)
-        var updatedObj = average(newObj)
-        return updatedObj
-
-    } catch (error) {
-        console.log("Couldn't fetch")
-    }
-
-}
-
-const replace = (object) => {
-    var newObj = []
-    for (let i = 1; i < object.length; i++) {
-        if (object[i].state === object[i - 1].state) {
-            newObj.push({
-                state: object[i].state, date: object[i].date, confirmed: object[i].confirmed - object[i - 1].confirmed, deceased: object[i].deceased - object[i - 1].deceased,
-                recovered: object[i].recovered - object[i - 1].recovered, fatality: object[i].fatality
-            })
-        }
-        else {
-            i = i + 1;
-        }
-    }
-    return newObj
-
-}
-
-const average = (object) => {
-    var newObj = []
-    let sumConfirmed = 0;
-    let sumDeceased = 0;
-    let sumRecovered = 0;
-    let fatality = 0;
-    for (let i = 5; i < object.length; i++) {
-        if (object[i].state === object[i - 1].state) {
-            sumConfirmed = parseInt((object[i].confirmed + object[i - 1].confirmed + object[i - 2].confirmed + object[i - 3].confirmed + object[i - 4].confirmed) / 5)
-            sumDeceased = parseInt((object[i].deceased + object[i - 1].deceased + object[i - 2].deceased + object[i - 3].deceased + object[i - 4].deceased) / 5)
-            sumRecovered = parseInt((object[i].recovered + object[i - 1].recovered + object[i - 2].recovered + object[i - 3].recovered + object[i - 4].recovered) / 5)
-            fatality = object[i].fatality
-            newObj.push({ state: object[i].state, date: object[i].date, confirmed: sumConfirmed, deceased: sumDeceased, recovered: sumRecovered, fatality: fatality })
-        }
-        else {
-            i = i + 5;
-        }
-    }
-    return newObj
-}
-
-
+// Fetch data for all states
 export async function fetchDataAll(listState) {
     try {
+
         const suffix = '.total';
         var keys = Object.keys(listState);
         let obj = []
@@ -181,7 +82,6 @@ export async function fetchDataAll(listState) {
                 deceased = 0;
             }
             let recovered = accessData.recovered;
-            //let tested = accessData.tested;
             let active = confirmed - recovered - deceased
             total = confirmed + deceased + recovered
             let tpr = (confirmed / accessData.tested) * 100
@@ -193,69 +93,58 @@ export async function fetchDataAll(listState) {
                 active_cent: active_cent.toFixed(1), recovery_cent: recovery_cent.toFixed(1), deceased_cent: deceased_cent.toFixed(1)
             });
         }
-        //checkNullorZero(obj)
         return obj
     } catch (error) {
         console.log("Couldn't fetch")
     }
 }
 
+// For doubling rate
 export async function growthRate(listState) {
     try {
 
         let obj = []
         var keys = Object.keys(listState);
         let date_ = new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000))
-        
-        
         var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-"  + date_.getDate();
         var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + (date_.getDate()-7);
-        
         let response = await fetch(url_timeseries);
         let data = await response.json();
         
         for (var i = 0; i < 33; i++) {
-            
             let accessObj = keys[i]
             let accessData = accessObj.split('.').reduce(function (o, key) {
                 return o[key];
             }, data);
-            //console.log(accessData[date_])
             let confirmed = accessData[date_updated].total.confirmed;
             let confirmed_previous = accessData[previous_updated].total.confirmed;
             let growth_rate = 7/((Math.log2(confirmed))-Math.log2(confirmed_previous))
-
             obj.push({
                 state: listState[keys[i]], growth_rate: growth_rate.toFixed(1)
             });
         }
-        // console.log(obj)
-        //checkNullorZero(obj)
         return obj
     } catch (error) {
         console.log("Couldn't fetch")
     }
 }
 
-
-
+// Fetch daily data for all state
 export async function fetchDailyDataAll(listState) {
+
     const dates = getDates();
     const timestamp = getTimeStamp();
     let obj = []
     var keys = Object.keys(listState);
-    //console.log(listState[keys[1]])
 
     try {
         for (var i = 0; i < 33; i++) {
             let accessObj = keys[i]
-            //console.log(accessObj)
             let response = await fetch(url_timeseries);
             let data = await response.json()
             let accessData = accessObj.split('.').reduce(function (o, key) {
                 return o[key];
             }, data);
-            //console.log(accessData)
 
             for (let i = 0; i < dates.length - 1; i++) {
                 if (accessData[dates[i]]) {
@@ -263,13 +152,10 @@ export async function fetchDailyDataAll(listState) {
                         state: listState[accessObj], date: timestamp[i], confirmed: accessData[dates[i]].total.confirmed, deceased: accessData[dates[i]].total.deceased,
                         recovered: accessData[dates[i]].total.recovered, fatality: ((accessData[dates[i]].total.deceased / accessData[dates[i]].total.confirmed) * 100).toFixed(2)
                     });
-
                 }
             }
-
-
         }
-        //console.log(obj)
+
         checkNullorZero(obj)
         var newObj = replace(obj)
         var updatedObj = average(newObj)
@@ -281,23 +167,23 @@ export async function fetchDailyDataAll(listState) {
 
 }
 
+// For active, deceased and recovered sub charts
 export async function fetchDataMiniChart(listState) {
+
     const dates = getDates();
     const timestamp = getTimeStamp();
     let obj = []
     var keys = Object.keys(listState);
-    //console.log(listState[keys[1]])
 
     try {
         for (var i = 0; i < 33; i++) {
+
             let accessObj = keys[i]
-            //console.log(accessObj)
             let response = await fetch(url_timeseries);
             let data = await response.json()
             let accessData = accessObj.split('.').reduce(function (o, key) {
                 return o[key];
             }, data);
-            //console.log(accessData)
 
             for (let i = 0; i < dates.length - 1; i++) {
                 if (accessData[dates[i]]) {
@@ -334,16 +220,11 @@ export async function fetchDataMiniChart(listState) {
                         }
                     }
                     
-                
                 }
             }
-
-
         }
-        //console.log(obj)
-         checkNullorZero(obj)
-        // var newObj = replace(obj)
-        // var updatedObj = average(newObj)
+
+        checkNullorZero(obj)
         return obj
 
     } catch (error) {
@@ -355,9 +236,11 @@ export async function fetchDataMiniChart(listState) {
 
 // To get the dates and fetch data from API
 const getDates = () => {
+
     let now = new Date();
     let daysOfYear = [];
     let datestring;
+
     for (let d = new Date(2020, 2, 1); d <= now; d.setDate(d.getDate() + 1)) {
         if (d.getDate() < 10) {
             datestring = d.getFullYear() + "-" + "0" + (d.getMonth() + 1) + "-" + "0" + d.getDate();
@@ -371,9 +254,11 @@ const getDates = () => {
 }
 
 const getTimeStamp = () => {
+
     let now = new Date();
     let start = new Date(2020, 2, 1)
     let daysOfYear = [];
+
     for (let d = start; d <= now; d.setDate(d.getDate() + 1)) {
         var loopDay = new Date(d)
         daysOfYear.push(loopDay);
@@ -383,6 +268,7 @@ const getTimeStamp = () => {
 
 
 const fillZero = (arr) => {
+
     for (let key in arr) {
         if (arr[key] === undefined || arr[key] === null || isNaN(arr[key]))
             arr[key] = 0;
@@ -390,6 +276,7 @@ const fillZero = (arr) => {
 }
 
 const checkNullorZero = (obj) => {
+
     const output = Object.keys(obj).map(col => {
         if (obj[col].deceased === "" || obj[col].deceased === 0 || obj[col].deceased === undefined || obj[col].deceased === null || isNaN(obj[col].deceased)) {
             obj[col].deceased = 0
@@ -402,4 +289,46 @@ const checkNullorZero = (obj) => {
         }
 
     })
+}
+
+// Daily delta values
+const replace = (object) => {
+
+    var newObj = []
+    for (let i = 1; i < object.length; i++) {
+        if (object[i].state === object[i - 1].state) {
+            newObj.push({
+                state: object[i].state, date: object[i].date, confirmed: object[i].confirmed - object[i - 1].confirmed, deceased: object[i].deceased - object[i - 1].deceased,
+                recovered: object[i].recovered - object[i - 1].recovered, fatality: object[i].fatality
+            })
+        }
+        else {
+            i = i + 1;
+        }
+    }
+    return newObj
+
+}
+
+// Moving Average
+const average = (object) => {
+
+    var newObj = []
+    let sumConfirmed = 0;
+    let sumDeceased = 0;
+    let sumRecovered = 0;
+    let fatality = 0;
+    for (let i = 5; i < object.length; i++) {
+        if (object[i].state === object[i - 1].state) {
+            sumConfirmed = parseInt((object[i].confirmed + object[i - 1].confirmed + object[i - 2].confirmed + object[i - 3].confirmed + object[i - 4].confirmed) / 5)
+            sumDeceased = parseInt((object[i].deceased + object[i - 1].deceased + object[i - 2].deceased + object[i - 3].deceased + object[i - 4].deceased) / 5)
+            sumRecovered = parseInt((object[i].recovered + object[i - 1].recovered + object[i - 2].recovered + object[i - 3].recovered + object[i - 4].recovered) / 5)
+            fatality = object[i].fatality
+            newObj.push({ state: object[i].state, date: object[i].date, confirmed: sumConfirmed, deceased: sumDeceased, recovered: sumRecovered, fatality: fatality })
+        }
+        else {
+            i = i + 5;
+        }
+    }
+    return newObj
 }

@@ -5,7 +5,6 @@ import './LineChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
 
 
-//confirmed,deceased,recovered
 function GetDataAll() {
 
     const [DataAll, setDataAll] = useState([]);
@@ -32,6 +31,7 @@ function GetDataAll() {
         fetchAPICurrent();
     }, []);
 
+    // Nest the group according to states
     var dataGroup = d3.nest()
         .key(function (d) {
             return d.state;
@@ -66,13 +66,7 @@ function GetDataAll() {
 }
 
 
-// <div className="AgeChart">
-//                 <AgeChart DataAll={DataAll} dataGroup={dataGroup} />
-//             </div>
-
-
 function LineChart(props) {
-    //console.log(props.DataAll)
 
     if (props.dataGroup[0] && props.currentData[0] && props.growthRate[0] && props.miniChart[0]) {
         console.log(props.miniChart)
@@ -89,11 +83,8 @@ function LineChart(props) {
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .call(responsivefy)
-            // .attr("viewBox", "0 0 " + width + " " + height )
-            // .attr("preserveAspectRatio", "xMidYMid meet")
             .append("g")
             .attr("transform", "translate(" + width / 8 + "," + -10 + ")");
-
 
 
         var fruitMenu = d3.select("#fruitDropdown")
@@ -136,7 +127,6 @@ function LineChart(props) {
         var len = check[0].values.length - 1
         var valuesCases = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
 
-        //console.log(check)
         var x = d3.scaleTime()
             .domain(d3.extent(check[0].values, function (d) { return d.date }))
             .range([0, width - width / 6 - width / 4]);
@@ -174,10 +164,8 @@ function LineChart(props) {
                         if ((d / 1000) >= 1) {
                             d = d / 1000 + "k";
                         }
-
                         return d;
                     }));
-
 
         var grid = svg.append('g')
             .attr('class', 'grid')
@@ -188,6 +176,8 @@ function LineChart(props) {
                 .classed('x-axis', true)
                 .attr('transform', 'translate(0,' + height + ')')
                 .call(d3.axisBottom(x).ticks(4));
+
+        
 
         var text = svg.append('g')
             .append('text')
@@ -206,9 +196,8 @@ function LineChart(props) {
                 .style('font-weight', 600)
                 .text("+" + valuesCases[0])
                 .style('fill', '#007BFF')
-        //console.log(info[0].values[0].confirmed)
 
-        var textCaseConfirmedCent =
+        
             svg.append('text')
                 .attr("y", d => 255)
                 .attr("x", d => 725)
@@ -227,7 +216,7 @@ function LineChart(props) {
                 .text(" " + info[0].values[0].active_cent + "%")
                 .style('fill', '#007BFF')
 
-        var textCaseRecovereedCent =
+        
             svg.append('text')
                 .attr("y", d => 300)
                 .attr("x", d => 725)
@@ -246,7 +235,7 @@ function LineChart(props) {
                 .text(" " + info[0].values[0].recovery_cent + "%")
                 .style('fill', '#28A745')
 
-        var textCaseDeceasedCent =
+        
             svg.append('text')
                 .attr("y", d => 345)
                 .attr("x", d => 725)
@@ -265,7 +254,7 @@ function LineChart(props) {
                 .text(" " + info[0].values[0].deceased_cent + "%")
                 .style('fill', '#6C757D')
 
-        var growthRate =
+        
             svg.append('text')
                 .attr("y", d => 390)
                 .attr("x", d => 725)
@@ -320,7 +309,7 @@ function LineChart(props) {
                 .text("+" + valuesCases[2])
                 .style('fill', '#6C757D')
 
-
+        // Bad code, DRY violated. Format data in a correct way.
         var line_confirmed = svg
             .append('g')
             .append("path")
@@ -353,7 +342,6 @@ function LineChart(props) {
             .attr('stroke', '#007BFF')
             .attr('stroke-width', 2.5)
             .attr('fill', 'none')
-
 
         var line_recovered = svg
             .append('g')
@@ -423,6 +411,7 @@ function LineChart(props) {
             .attr('fill', 'none')
 
         function update(selectedGroup) {
+
             var dataFilter = props.dataGroup.filter(function (d) {
                 return d.key == selectedGroup
             })
@@ -445,14 +434,11 @@ function LineChart(props) {
             var circle_y = [dataFilter[0].values[len].confirmed, dataFilter[0].values[len].recovered, dataFilter[0].values[len].deceased]
 
             x.domain(d3.extent(dataFilter[0].values, function (d) { return d.date }))
-                .range([0, width - width / 6 - width / 4]);
             y.domain(d3.extent(dataFilter[0].values, function (d) { return d.confirmed }))
             x_mini.domain(d3.extent(mini[0].values, function (d) { return d.date }))
             y_active.domain(d3.extent(mini[0].values, function (d) { return d.active }))
             y_recovered.domain(d3.extent(mini[0].values, function (d) { return d.recovered }))
             y_deceased.domain(d3.extent(mini[0].values, function (d) { return d.deceased }))
-
-            //console.log(d3.extent(dataFilter[0].values,function(d){return d.confirmed}))
 
             text.text(selectedGroup)
             textCaseConfirmed.text("+" + circle_y[0])
@@ -464,7 +450,6 @@ function LineChart(props) {
             growthRate_.text(" " + growth[0].values[0].growth_rate + " " + "days")
             disclaimer.text("")
             disclaimer_.text("")
-
 
             xAxis.attr("transform", "translate(0," + y(0) + ")")
                 .call(d3.axisBottom(x).ticks(4));
@@ -492,7 +477,6 @@ function LineChart(props) {
                         return x(d.date);
                     })
                     .y(function (d) {
-                        //console.log(d.confirmed)
                         return y(d.confirmed);
                     }))
 
@@ -503,11 +487,9 @@ function LineChart(props) {
                 .attr("d", d3.line()
                     .curve(d3.curveBasis)
                     .x(function (d, i) {
-                        //console.log(d.date)
                         return x_mini(d.date);
                     })
                     .y(function (d, i) {
-                        //console.log(y_active(d.active))
                         return y_active(d.active);
                     }))
 
@@ -521,7 +503,6 @@ function LineChart(props) {
                         return x(d.date);
                     })
                     .y(function (d) {
-                        //console.log(d.confirmed)
                         return y(d.recovered);
                     }))
 
@@ -549,7 +530,6 @@ function LineChart(props) {
                         return x(d.date);
                     })
                     .y(function (d) {
-                        //console.log(d.confirmed)
                         return y(d.deceased);
                     }))
 
@@ -579,12 +559,12 @@ function LineChart(props) {
 
         fruitMenu.on('change', function () {
 
-            // Find which fruit was selected from the dropdown
+            // Find which state was selected from the dropdown
             var selectedFruit = d3.select(this)
                 .select("select")
                 .property("value")
 
-            // Run update function with the selected fruit
+            // Run update function with the selected state
             update(selectedFruit)
 
 
@@ -617,8 +597,6 @@ function LineChart(props) {
         var date = check[0].values[len].date
         var cirlce_y = [check[0].values[len].confirmed, check[0].values[len].recovered, check[0].values[len].deceased]
 
-        //var date = props.DataAll[len].date
-        //var cirlce_y = [props.DataAll[len].confirmed, props.DataAll[len].recovered, props.DataAll[len].deceased]
         var color = ["#007BFF", "#28A745", "#6C757D"]
         var keys_legend = ["Confirmed", "Recovered", "Deceased"]
 
@@ -627,7 +605,7 @@ function LineChart(props) {
             .enter()
             .append("circle")
             .attr("cx", function (d, i) { return 40 + i * 100 })
-            .attr("cy", 80) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("cy", 80)
             .attr("r", 3)
             .style("fill", function (d, i) { return color[i] })
 
@@ -637,7 +615,7 @@ function LineChart(props) {
             .enter()
             .append("text")
             .attr("x", function (d, i) { return 50 + i * 100 })
-            .attr("y", 80) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("y", 80) 
             .style("fill", function (d, i) { return color[i] })
             .text(function (d) { return d })
             .style('font-size', '0.85rem')
@@ -653,11 +631,14 @@ function LineChart(props) {
             .attr('cy', function (d, i) { return y(cirlce_y[i]) })
             .style('fill', function (d, i) { return color[i] })
 
+        /* On click of search button, get textbox value and update it. 
+         Previously used dropdown only to update the chart but it
+         didn't work. */
+
         var search_btn = document.getElementsByClassName("searchButton")
 
         search_btn[0].addEventListener("click", function () {
             const title = document.getElementById('standard-basic').value
-            //console.log(title)
             try{
                 update(title)
             }
@@ -665,49 +646,28 @@ function LineChart(props) {
                 console.log('Incorrect key')
             }
          });
-        // console.log(x[0])
-        //const title = document.getElementById('standard-basic')
-        //console.log(title)
-
     }
     return null;
 }
 
-
-
 function responsivefy(svg) {
-    // container will be the DOM element
-    // that the svg is appended to
-    // we then measure the container
-    // and find its aspect ratio
+
     const container = d3.select(svg.node().parentNode),
         width = parseInt(svg.style('width'), 10),
         height = parseInt(svg.style('height'), 10),
         aspect = width / height;
 
-    // set viewBox attribute to the initial size
-    // control scaling with preserveAspectRatio
-    // resize svg on inital page load
+
     svg.attr('viewBox', `0 0 ${width} ${height}`)
         .attr('preserveAspectRatio', 'xMinYMid')
         .call(resize);
 
-    // add a listener so the chart will be resized
-    // when the window resizes
-    // multiple listeners for the same event type
-    // requires a namespace, i.e., 'click.foo'
-    // api docs: https://goo.gl/F3ZCFr
+
     d3.select(window).on(
         'resize.' + container.attr('id'),
         resize
     );
 
-    // this is the code that resizes the chart
-    // it will be called on load
-    // and in response to window resizes
-    // gets the width of the container
-    // and resizes the svg to fill it
-    // while maintaining a consistent aspect ratio
     function resize() {
         const w = parseInt(container.style('width'));
         svg.attr('width', w);

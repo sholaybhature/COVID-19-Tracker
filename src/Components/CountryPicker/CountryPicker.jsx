@@ -1,4 +1,4 @@
-import react, { Component } from "react";
+import react from "react";
 export const listState = {
     "AN": "Andaman & Nicobar",
     "AP": "Andhra Pradesh",

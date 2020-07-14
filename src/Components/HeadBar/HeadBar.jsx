@@ -1,33 +1,22 @@
 import React from 'react';
 import styles from './HeadBar.module.css';
 import cx from 'classnames';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import {makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
-import SearchIcon from '@material-ui/icons/Search';
 import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { faDatabase } from '@fortawesome/free-solid-svg-icons';
-import { faVirus } from '@fortawesome/free-solid-svg-icons';
-import { faPumpSoap } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import 'fontsource-roboto';
 import svgMask from './coronavirus.svg'
 import GitHubIcon from '@material-ui/icons/GitHub';
 
 const useStyles = makeStyles((theme) => ({
+
     root: {
         flexGrow: 1,
         background: '#ffffff',
@@ -120,9 +109,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Head = () => {
+    
     const [open, setOpen] = React.useState(false);
-
-    const icons = [faHome, faDatabase, faGithub];
 
     const handleDrawerOpen = () => {
         setOpen(true);

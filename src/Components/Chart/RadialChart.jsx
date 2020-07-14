@@ -4,9 +4,6 @@ import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import './RadialChart.css';
 import { listState } from '../CountryPicker/CountryPicker';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-
 
 
 function GetDataAll() {
@@ -29,14 +26,18 @@ function GetDataAll() {
 
 
 function RadialChart(props) {
-    //console.log(props.DataAll)
+
+    // If data loaded
     if (props.DataAll[0]) {
+
         var keys = ['Active', 'Recovered', 'Deceased']
+
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
             width = 1200 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom,
             innerRadius = 160,
             outerRadius = Math.min(width, height) / 2.5;
+
         var svg = d3.select(".RadialChart")
             .append("svg")
             .attr('id','RadialChart')
@@ -44,16 +45,9 @@ function RadialChart(props) {
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .call(responsivefy)
-            // .attr("viewBox", "0 0 " + width + " " + height )
-            // .attr("preserveAspectRatio", "xMidYMid meet")
             .append("g")
             .attr("transform", "translate(" + width / 4 + "," + (height / 2) + ")");
-        // var dataGroup = d3.nest()
-        //     .key(function (d) {
-        //         return d.state;
-        //     })
-        //     .entries(props.dailyDataAll)
-        // console.log(dataGroup)
+
         var x = d3.scaleBand()
             .domain(props.DataAll.map(d => d.state))
             .range([0, 2 * Math.PI])
@@ -67,6 +61,7 @@ function RadialChart(props) {
             .domain(['active', 'recovered', 'deceased'])
             .range(["#E05759", "#76B7B2", "#616161"])
 
+        // Tool tip for hovering on bars
         var tip = d3Tip()
             .attr('class', 'd3-tip')
             .offset([-10, 0])
@@ -74,7 +69,7 @@ function RadialChart(props) {
                 return "Active: <span style='color:#E05759'>" + d.data.active + "</span> <br>Recovered: <span style='color:#76B7B2'>" + d.data.recovered + "</span> <br>Deceased: <span style='color:#616161'>" + d.data.deceased + "</span> ";
             })
 
-
+        // Test Positive ratio
         svg.append("g")
             .attr("text-anchor", "middle")
             .call(g => g.selectAll("g")
@@ -91,15 +86,6 @@ function RadialChart(props) {
                     .text(d => d.tpr)
                     .style("font-size", "8px")
                     .style('opacity', 0.5)))
-
-        // var yAxis = g => g
-        //     .attr("text-anchor", "middle")
-        //     .call(g => g.append("text")
-        //         .attr("y", 0)
-        //         .attr("dy", "-15em")
-        //         .text("Cases"))
-
-
 
         svg.append('g')
             .append('circle')
@@ -119,7 +105,6 @@ function RadialChart(props) {
             .attr('stroke', 'black')
             .attr('stroke-opacity', 0.025)
 
-
         var arc = d3.arc()
             .innerRadius(d => y(d[0]))
             .outerRadius(d => y(d[1]))
@@ -128,9 +113,9 @@ function RadialChart(props) {
             .padAngle(0.01)
             .padRadius(innerRadius)
 
-
         var stacked = d3.stack().keys(['active', 'recovered', 'deceased'])
 
+        // State names
         var dataStack = stacked(props.DataAll)
         svg.append("g")
             .selectAll("g")
@@ -145,7 +130,6 @@ function RadialChart(props) {
             .style("font-size", "12px")
             .attr("alignment-baseline", "middle")
 
-
         svg.append("g")
             .selectAll('g')
             .data(dataStack)
@@ -155,7 +139,6 @@ function RadialChart(props) {
             .data(d => d)
             .join('path')
             .attr('d', arc)
-            //.on('mouseover', function(d){console.log(d.data)})
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide)
 
@@ -179,8 +162,6 @@ function RadialChart(props) {
             .style('opacity', 0.5)
             .text("cases")
 
-
-
         svg.append('g')
             .append('text')
             .attr("y", d => -132)
@@ -191,7 +172,6 @@ function RadialChart(props) {
 
         svg.append('g')
             .append('text')
-            
             .classed('heading', true)
             .attr("y", d => -75)
             .attr("x", d => 300)
@@ -201,8 +181,6 @@ function RadialChart(props) {
             .on('mouseover', function(d){d3.select(this).attr("y", -80);})
             .on('mouseout', function(d){d3.select(this).attr("y", -75);})
             
-
-
         svg.append('g')
             .append('text')
             .classed('heading', true)
@@ -228,52 +206,29 @@ function RadialChart(props) {
                 .style("font-weight", 600)
                 .text(d => d))
 
-        // svg.append("g")
-        //     .call(xAxis);
-
-        // svg.append("g")
-        //     .call(yAxis);
-
         svg.call(tip);
-
-        
     }
     return null;
 }
 
 function responsivefy(svg) {
-    // container will be the DOM element
-    // that the svg is appended to
-    // we then measure the container
-    // and find its aspect ratio
+
     const container = d3.select(svg.node().parentNode),
         width = parseInt(svg.style('width'), 10),
         height = parseInt(svg.style('height'), 10),
         aspect = width / height;
 
-    // set viewBox attribute to the initial size
-    // control scaling with preserveAspectRatio
-    // resize svg on inital page load
+
     svg.attr('viewBox', `0 0 ${width} ${height}`)
         .attr('preserveAspectRatio', 'xMinYMid')
         .call(resize);
 
-    // add a listener so the chart will be resized
-    // when the window resizes
-    // multiple listeners for the same event type
-    // requires a namespace, i.e., 'click.foo'
-    // api docs: https://goo.gl/F3ZCFr
+
     d3.select(window).on(
         'resize.' + container.attr('id'),
         resize
     );
 
-    // this is the code that resizes the chart
-    // it will be called on load
-    // and in response to window resizes
-    // gets the width of the container
-    // and resizes the svg to fill it
-    // while maintaining a consistent aspect ratio
     function resize() {
         const w = parseInt(container.style('width'));
         svg.attr('width', w);
