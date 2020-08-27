@@ -107,7 +107,14 @@ export async function growthRate(listState) {
         var keys = Object.keys(listState);
         let date_ = new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000))
         var date_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-"  + date_.getDate();
-        var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + (date_.getDate()-7);
+        var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + (date_.getDate()-7);
+       
+        if (date_.getDate() >= 17){
+            var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + (date_.getDate()-7);
+        }
+        else{
+            var previous_updated = date_.getFullYear() + "-" + "0" + (date_.getMonth() + 1) + "-" + "0" + (date_.getDate()-7);
+        }
         let response = await fetch(url_timeseries);
         let data = await response.json();
         

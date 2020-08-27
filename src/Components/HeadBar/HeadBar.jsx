@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     },
     menuButton: {
         marginRight: theme.spacing(2),
-        marginLeft: theme.spacing(2),
+        marginLeft: theme.spacing(1),
         [theme.breakpoints.down('md')]: {
             marginRight: theme.spacing(1),
             marginLeft: theme.spacing(1),
@@ -178,9 +178,6 @@ const Head = () => {
                         </IconButton>
                     </a>
                 </div>
-                <Box align="center" position="bottom">
-                    <Typography align="center" className={classes.credit}>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a> </Typography>
-                </Box>
             </Drawer>
 
         </div>

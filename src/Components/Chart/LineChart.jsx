@@ -29,6 +29,9 @@ function GetDataAll() {
         fetchGrowthRate();
         fetchAPIAll();
         fetchAPICurrent();
+        if (window.matchMedia("(orientation: portrait)").matches) {
+            alert("This page is best viewed in landscape mode.")
+         }
     }, []);
 
     // Nest the group according to states
@@ -68,9 +71,11 @@ function GetDataAll() {
 
 function LineChart(props) {
 
-    if (props.dataGroup[0] && props.currentData[0] && props.growthRate[0] && props.miniChart[0]) {
-        console.log(props.miniChart)
 
+
+
+    if (props.dataGroup[0] && props.currentData[0] && props.growthRate[0] && props.miniChart[0]) {
+        
         var margin = { top: 10, right: 10, bottom: 10, left: 10 },
             width = 1150 - margin.left - margin.right,
             height = 550 - margin.top - margin.bottom;
@@ -635,17 +640,7 @@ function LineChart(props) {
          Previously used dropdown only to update the chart but it
          didn't work. */
 
-        var search_btn = document.getElementsByClassName("searchButton")
 
-        search_btn[0].addEventListener("click", function () {
-            const title = document.getElementById('standard-basic').value
-            try{
-                update(title)
-            }
-            catch (error){
-                console.log('Incorrect key')
-            }
-         });
     }
     return null;
 }

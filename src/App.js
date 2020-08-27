@@ -13,17 +13,14 @@ class App extends Component {
   async componentDidMount() {
     const fetchedData = await fetchNationalData();
     this.setState({ data: fetchedData })
-  }
 
+  }
+  
   render() {
     const { data } = this.state;
     return (
       <div>
         <HeadBar></HeadBar>
-        <SearchBar></SearchBar>
-        <Cards data={data}></Cards>
-        <Chart></Chart>
-        <RadialChart></RadialChart>
         <LineChart></LineChart>
       </div>
     )
