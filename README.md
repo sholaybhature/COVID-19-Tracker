@@ -8,3 +8,4 @@
 If there's an issue or a suggestion please feel free to contact me. 
 
 ###### Thanks to [covid19india](https://www.covid19india.org/) for their API.
+(not updated regularly)
